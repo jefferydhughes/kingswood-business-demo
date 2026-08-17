@@ -1,0 +1,28 @@
+const modal=document.getElementById('quiz-modal');
+const content=document.getElementById('quiz-content');
+const progress=document.getElementById('quiz-progress-bar');
+const state={stage:0,answers:{}};
+const questions=[
+  {key:'goal',title:'What are you trying to do next?',opts:[
+    ['start','Start my career'],['sports','Build a career in sports or recreation'],['lead','Become a stronger manager or leader'],['senior','Move into senior leadership'],['venture','Start or grow a business'],['ministry','Lead a church or nonprofit organization'],['unsure','I’m not sure yet']
+  ]},
+  {key:'education',title:'Where are you in your education?',opts:[['hs','High school / no bachelor’s degree'],['bachelor','I already have a bachelor’s degree'],['grad','I already have graduate education']]},
+  {key:'problem',title:'Which challenge sounds more like the one you want to solve?',opts:[['people','How do I align people, build healthy culture, communicate, and lead change well?'],['business','How do I make better strategic decisions, improve performance, manage resources, and grow?'],['sport','How do I lead programs, teams, events, or organizations in sport and recreation?'],['foundation','I want a broad foundation before I specialize.']]},
+  {key:'experience',title:'How much professional leadership experience do you have?',opts:[['early','Little or none yet'],['some','1–4 years'],['experienced','5+ years']]}
+];
+function openQuiz(){modal.classList.add('active');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';state.stage=0;state.answers={};renderQuestion();}
+function closeQuiz(){modal.classList.remove('active');modal.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+document.querySelectorAll('[data-open-quiz]').forEach(b=>b.addEventListener('click',openQuiz));
+document.querySelectorAll('[data-close-quiz]').forEach(b=>b.addEventListener('click',closeQuiz));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeQuiz()});
+function renderQuestion(){const q=questions[state.stage];progress.style.width=`${(state.stage/questions.length)*100}%`;content.innerHTML=`<div class="quiz-question"><div class="eyebrow dark">QUESTION ${state.stage+1} OF ${questions.length}</div><h2 id="quiz-title">${q.title}</h2><div class="quiz-options">${q.opts.map(([v,l])=>`<button class="quiz-option" data-v="${v}">${l}</button>`).join('')}</div></div>`;content.querySelectorAll('.quiz-option').forEach(btn=>btn.onclick=()=>{state.answers[q.key]=btn.dataset.v;state.stage++;state.stage<questions.length?renderQuestion():renderResult();});}
+function recommendation(){const a=state.answers;if(a.education==='hs'||a.goal==='start'||a.problem==='foundation')return a.goal==='sports'||a.problem==='sport'?'sports':'ba';if(a.goal==='sports'||a.problem==='sport')return 'sports';if(a.problem==='people'||a.goal==='lead'||a.goal==='ministry')return 'mol';if(a.problem==='business'||a.goal==='senior'||a.goal==='venture')return 'mba';return a.experience==='experienced'?'mba':'mol';}
+const results={
+  ba:{name:'B.A. in Business Management',badge:'YOUR BEST FIT · UNDERGRADUATE',why:'You’re building a broad business foundation and want practical exposure to the disciplines that make organizations work.',bullets:['Marketing, entrepreneurship, sales, strategy, and project management','A four-month supervised internship','A Christian approach to leadership, work, and decision-making'],href:'#business-ba'},
+  sports:{name:'B.A. in Sports & Recreation Management',badge:'YOUR BEST FIT · UNDERGRADUATE',why:'You want business and leadership skills, but you want to apply them in sports, recreation, events, facilities, or community programming.',bullets:['Business foundation plus specialized sports/recreation courses','12-credit internship + 3-credit practicum','Marketing, media, events, facilities, leadership, and finance'],href:'#sports'},
+  mol:{name:'Master of Organizational Leadership',badge:'YOUR BEST FIT · GRADUATE',why:'Your next level is primarily about leading people and organizations — culture, communication, change, stewardship, and developing others.',bullets:['30-credit graduate degree','One-year full-time or two-year part-time path','Applied capstone tied to a real organizational challenge'],href:'#mol'},
+  mba:{name:'Master of Business Administration',badge:'YOUR BEST FIT · GRADUATE',why:'You’re preparing for broader executive responsibility and need fluency across strategy, finance, operations, people, innovation, and organizational performance.',bullets:['36-credit MBA','Strategy, finance, operations, leadership, and innovation','Business as Mission capstone'],href:'#mba'}
+};
+function renderResult(){progress.style.width='100%';const r=results[recommendation()];content.innerHTML=`<div class="quiz-result"><span class="result-badge">${r.badge}</span><h2 id="quiz-title">${r.name}</h2><p>${r.why}</p><ul>${r.bullets.map(x=>`<li>${x}</li>`).join('')}</ul><a class="btn btn-red" href="${r.href}" onclick="closeQuiz()">Explore This Program</a><button class="quiz-restart" id="quiz-restart">Start over</button></div>`;document.getElementById('quiz-restart').onclick=()=>{state.stage=0;state.answers={};renderQuestion();};}
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}}),{threshold:.12});document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+const toggle=document.querySelector('.nav-toggle'),nav=document.querySelector('.main-nav');toggle?.addEventListener('click',()=>{const open=nav.classList.toggle('open');toggle.setAttribute('aria-expanded',open)});
