@@ -9,7 +9,9 @@ Static concept site ready to deploy to Vercel.
 - `assets/` — current Kingswood program imagery used in the demo
   - `kingswood-mark.png` — header/footer flame logo
   - `sports-field.jpg` — clean night-field background for the Sports & Recreation card and band
-  - `sports.jpg` — original pre-composed banner (text baked in); kept for reference, not used by the site
+  - `mba-student.jpg` — MBA section portrait, cropped from `austin-distel-TluMvvrZ57g-unsplash.jpg`
+  - `sports.jpg`, `mba.jpg` — original pre-composed banners (text baked in); kept for reference, not used by the site
+  - `austin-distel-TluMvvrZ57g-unsplash.jpg` — 5 MB uncropped source; safe to delete before deploying
 - `vercel.json` — minimal Vercel config
 
 ## Deploy
