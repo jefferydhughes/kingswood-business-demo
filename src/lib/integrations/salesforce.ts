@@ -77,7 +77,7 @@ function classifyFailure(status: number): AdapterResult {
 export class SalesforceCrmAdapter implements CrmAdapter {
   constructor(private readonly config: SalesforceConfig) {}
 
-  async upsertProspect(input: ProspectInput): Promise<AdapterResult> {
+  async upsertProspect(input: ProspectInput, _context: { idempotencyKey: string }): Promise<AdapterResult> {
     try {
       const token = await getToken(this.config);
       const key = encodeURIComponent(input.submissionId);
