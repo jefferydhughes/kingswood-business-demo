@@ -1,5 +1,3 @@
-import { spawnSync } from "node:child_process";
-
 const hasDatabaseConfiguration = Boolean(
   process.env.DATABASE_URL && process.env.PAYLOAD_SECRET,
 );
@@ -13,17 +11,15 @@ if (!hasDatabaseConfiguration) {
 
 console.log("Applying committed Payload migrations...");
 
-const result = spawnSync(
-  process.execPath,
-  ["node_modules/payload/bin.js", "migrate"],
-  {
-    env: process.env,
-    stdio: "inherit",
-  },
-);
+const { tsImport } = await import("tsx/esm/api");
+const configModule = await tsImport("../src/payload.config.ts", import.meta.url);
+const config = await configModule.default;
+const { getPayload } = await import("payload");
+const payload = await getPayload({ config });
 
-if (result.error) {
-  throw result.error;
+try {
+  await payload.db.migrate();
+  console.log("Payload migrations complete.");
+} finally {
+  await payload.db.pool.end();
 }
-
-process.exit(result.status ?? 1);
