@@ -26,6 +26,8 @@ Gate: approved brief, owners, sources, budget range.
 - Analytics/consent and redirects.
 - Priority content migration and real imagery/proof.
 
+WordPress migration in this phase includes the high-level recruitment journeys—not only copied footer links. Academics, Admissions, Student Life, About, Visit, Costs/Aid, program hubs, and priority program pages receive redesigned mobile-first templates. Each current URL is inventoried and assigned Keep/Improve, Merge, Rewrite, Archive, or Redirect status before launch. See `docs/wordpress-migration.md`.
+
 Gate: ≥90% priority-task success with no critical accessibility, content, security, or usability defect.
 
 ## Phase 2 — Launch and optimization (4–6 weeks)
@@ -72,6 +74,8 @@ All streams use shared schemas, API contracts, design tokens, and acceptance tes
 
 Must: programs/finder, program template, admissions/cost/visit, navigation/search, CMS workflow, forms, analytics/consent, redirects/SEO, accessibility/performance pipeline, Ask Kingswood proof behind a flag.
 
+WordPress migration must: complete URL inventory; assign content owners; build high-level templates; migrate priority recruitment content to CMS drafts; verify facts, accessibility, metadata, and mobile CTAs; approve a one-to-one redirect map; preserve required utility/current-student links; monitor 404s after launch.
+
 Should: compare, parent hub, international program panels, stories/outcomes, emailed plans, events.
 
 Later: prospect portal, cost calculator, CRM-stage personalization, LMS tutor, secure chat, AI authoring/analytics.
@@ -85,4 +89,3 @@ Short branches, PR previews, required lint/type/unit/integration/accessibility/s
 Product owner; technical lead; front-end/design-system developer; UX/content strategist; migration/editorial support; integration/data support; accessibility/QA; admissions/academic owners; AI engineer/evaluator for Compass.
 
 Schedules expand when roles are fractional or sources/APIs are unresolved.
-

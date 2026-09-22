@@ -53,12 +53,15 @@ Read these before changing platform architecture, content models, authentication
 
 ## Branch strategy
 
-- `main` — preserved working prototype and approved releases
-- `modernization/phase-1-foundation` — current modernization work
-- Short-lived feature branches — scoped implementation work merged through review
+- `main` — production source and approved releases
+- One short-lived feature branch per implementation package
+- Merge through review and delete the feature branch after production verification
+- Do not maintain long-lived design, migration, or environment branches
 
 ## Phase 1 outcome
 
 Phase 1 delivers an accessible mobile-first foundation, structured program finder and pages, admissions/cost/visit/parent/international pathways, staff-editable CMS, short integrated forms, analytics and redirects, plus a limited public-content-only Ask Kingswood assistant behind a feature flag.
 
 See the roadmap and master plan for gates and sequencing.
+
+The School of Business homepage is the first design path, not the whole information architecture. See the [WordPress content migration playbook](docs/wordpress-migration.md) for the university-wide page and redirect process.
