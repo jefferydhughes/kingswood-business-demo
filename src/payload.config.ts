@@ -18,14 +18,17 @@ import { SiteSettings } from "@/globals/SiteSettings";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
-const siteURL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const canonicalURL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const deploymentURL = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : canonicalURL;
+const allowedOrigins = [...new Set([canonicalURL, deploymentURL])];
+const isNonProductionDatabase =
+  process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview";
 
 /**
- * Inactive CMS scaffold.
- *
- * Nothing in the public application imports this config yet. Payload routes,
- * the Next.js plugin, and database migrations are intentionally deferred until
- * a disposable development database and Vercel Preview resources exist.
+ * Preview CMS configuration. Schema push is restricted to local development
+ * and Vercel Preview. Production must use reviewed, committed migrations.
  */
 export default buildConfig({
   admin: {
@@ -34,10 +37,14 @@ export default buildConfig({
   },
   collections: [Users, Media, Pages, Programs, Redirects],
   globals: [Header, Footer, SiteSettings],
-  cors: [siteURL],
-  csrf: [siteURL],
+  cors: allowedOrigins,
+  csrf: allowedOrigins,
   db: postgresAdapter({
-    pool: { connectionString: process.env.DATABASE_URL ?? "" },
+    pool: {
+      connectionString: process.env.DATABASE_URL ?? "",
+      max: 1,
+    },
+    push: isNonProductionDatabase,
   }),
   editor: lexicalEditor(),
   maxDepth: 4,
@@ -50,6 +57,7 @@ export default buildConfig({
     }),
   ],
   secret: process.env.PAYLOAD_SECRET ?? "",
+  serverURL: deploymentURL,
   sharp,
   typescript: {
     outputFile: path.resolve(dirname, "payload-types.ts"),

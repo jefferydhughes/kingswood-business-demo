@@ -59,7 +59,7 @@ The existing root layout and public pages will need to move into the frontend ro
 
 ### PostgreSQL
 
-Use a managed Postgres provider connected through Vercel Marketplace. Neon is the default recommendation because it is the successor path for Vercel Postgres and is designed for serverless connections. Supabase Postgres is also technically valid if Kingswood prefers its administration or already has an institutional account. Provider selection is a procurement/ownership choice, not an application-architecture change.
+Use **Supabase Postgres** as the managed database provider. This matches the owner's existing project operations and avoids adding another database vendor. Payload owns the application schema, CMS authentication, authorization, drafts, and migrations; Supabase is the PostgreSQL host only. Use the Supabase shared Session pooler for the initial Preview environment and limit the application pool conservatively.
 
 Requirements:
 
