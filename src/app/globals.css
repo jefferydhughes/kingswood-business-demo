@@ -83,6 +83,24 @@ h1 em,h2 em { color:var(--brand-red); font-style:normal; }
 .footer strong { color:var(--white); }
 .footer-grid { display:grid; gap:2rem; }
 .footer-grid>div:last-child { display:grid; gap:.6rem; }
+.institutional-header { background:var(--brand-blue); color:var(--white); border-bottom:1px solid rgba(255,255,255,.14); }
+.institutional-nav { display:grid; gap:1rem; padding-block:1rem; }
+.institutional-nav nav { display:flex; gap:.25rem 1rem; flex-wrap:wrap; }
+.institutional-nav nav a { min-height:2.75rem; display:flex; align-items:center; font-weight:700; }
+.institutional-hero { background:var(--brand-blue); color:var(--white); padding:4.5rem 0 5rem; }
+.institutional-hero h1 { max-width:13ch; }
+.institutional-hero-inner { max-width:var(--max); }
+.institutional-intro { max-width:47rem; margin-bottom:2.5rem; }
+.institutional-intro>p:last-child,.institutional-card p { color:var(--muted); }
+.institutional-card-grid { display:grid; gap:1rem; }
+.institutional-card { display:flex; flex-direction:column; min-height:18rem; padding:1.5rem; border:1px solid var(--line); border-top:5px solid var(--brand-red); background:var(--white); }
+.institutional-card p { flex:1; }
+.institutional-card a { font-weight:800; text-decoration:underline; text-underline-offset:.25em; }
+.institutional-card a span { color:var(--brand-red); }
+.institutional-next { padding:4.5rem 0; background:var(--brand-red); color:var(--white); }
+.institutional-next-inner { display:grid; gap:2rem; align-items:center; }
+.institutional-next h2 { max-width:14ch; }
+.institutional-next p { max-width:42rem; }
 .mobile-actions { position:fixed; z-index:40; inset:auto 0 0; display:grid; grid-template-columns:1fr 1fr; padding:max(.5rem,env(safe-area-inset-bottom)) .5rem .5rem; background:var(--white); box-shadow:0 -8px 30px rgba(6,23,34,.16); }
 .mobile-actions a { min-height:2.9rem; display:grid; place-items:center; font-weight:800; }
 .mobile-actions a:first-child { background:var(--brand-red); color:var(--white); }
@@ -91,6 +109,7 @@ h1 em,h2 em { color:var(--brand-red); font-style:normal; }
   .actions { flex-direction:row; }
   .program-grid,.comparison { grid-template-columns:repeat(2,1fr); }
   .finder { padding:3rem; }
+  .institutional-card-grid { grid-template-columns:repeat(2,1fr); }
 }
 @media (min-width:64rem) {
   .menu-button { display:none; }
@@ -106,6 +125,10 @@ h1 em,h2 em { color:var(--brand-red); font-style:normal; }
   .footer-grid { grid-template-columns:1.5fr 1fr; }
   .mobile-actions { display:none; }
   .footer { padding-bottom:4rem; }
+  .institutional-nav { display:flex; align-items:center; justify-content:space-between; }
+  .institutional-nav nav { gap:1.5rem; }
+  .institutional-hero { padding-block:7rem; }
+  .institutional-next-inner { grid-template-columns:1fr auto; }
 }
 @media (prefers-reduced-motion:reduce) {
   html { scroll-behavior:auto; }
