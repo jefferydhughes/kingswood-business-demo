@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 const links = [
@@ -33,8 +34,14 @@ export function SiteHeader() {
     <header className="site-header">
       <div className="container nav-wrap">
         <Link className="brand" href="/" aria-label="Kingswood University home">
-          <span className="brand-mark" aria-hidden="true">K</span>
-          <span><strong>KINGSWOOD</strong><small>UNIVERSITY</small></span>
+          <Image
+            className="brand-logo"
+            src="/assets/kingswood-logo.webp"
+            alt="Kingswood University"
+            width={278}
+            height={70}
+            priority
+          />
         </Link>
         <button ref={toggle} className="menu-button" type="button" aria-expanded={open} aria-controls="primary-navigation" onClick={() => setOpen(v => !v)}>
           <span aria-hidden="true">☰</span> Menu

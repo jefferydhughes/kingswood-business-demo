@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ProgramFinder } from "@/components/ProgramFinder";
 import { SiteHeader } from "@/components/SiteHeader";
 
@@ -25,11 +26,20 @@ export default function Home() {
                 <Link className="button ghost" href="#program-finder">Find my program</Link>
               </div>
             </div>
-            <aside className="hero-proof" aria-label="Kingswood advantages">
-              <span><strong>Personal</strong>Small classes and faculty access</span>
-              <span><strong>Practical</strong>Applied projects and experience</span>
-              <span><strong>Purpose-driven</strong>Faith integrated with leadership</span>
-            </aside>
+            <div className="hero-visual">
+              <Image
+                src="/assets/business-students.jpg"
+                alt="Business students collaborating around a table"
+                fill
+                priority
+                sizes="(max-width: 1023px) 100vw, 42vw"
+              />
+              <aside className="hero-proof" aria-label="Kingswood advantages">
+                <span><strong>Personal</strong>Small classes and faculty access</span>
+                <span><strong>Practical</strong>Applied projects and experience</span>
+                <span><strong>Purpose-driven</strong>Faith integrated with leadership</span>
+              </aside>
+            </div>
           </div>
         </section>
 
