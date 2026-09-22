@@ -1,31 +1,64 @@
 # Kingswood School of Business — Recruitment Demo
 
-Static concept site ready to deploy to Vercel.
+This repository contains the original School of Business recruitment prototype and the approved foundation for evolving it into Kingswood University's mobile-first digital enrollment platform.
 
-## Files
-- `index.html` — homepage / School of Business recruitment experience
-- `styles.css` — responsive design system
-- `app.js` — program-finder quiz + navigation/reveal behaviour
-- `assets/` — current Kingswood program imagery used in the demo
-  - `kingswood-mark.png` — header/footer flame logo
-  - `sports-field.jpg` — clean night-field background for the Sports & Recreation card and band
-  - `mba-student.jpg` — MBA section portrait, cropped from `austin-distel-TluMvvrZ57g-unsplash.jpg`
-  - `sports.jpg`, `mba.jpg` — original pre-composed banners (text baked in); kept for reference, not used by the site
-  - `austin-distel-TluMvvrZ57g-unsplash.jpg` — 5 MB uncropped source; safe to delete before deploying
-- `vercel.json` — minimal Vercel config
+## Current design reference
 
-## Deploy
-Drag the folder into a Vercel project, or push it to a Git repository and import the repository in Vercel. No build command is required.
+The original static prototype is intentionally preserved as the visual, messaging, and interaction reference:
 
-## Content status
-This prototype intentionally markets the **currently listed B.A. in Business Management**, not the proposed 3-year replacement degree. It is structured so the undergraduate card/page can be swapped later without redesigning the rest of the School of Business experience.
+- `index.html` — School of Business recruitment experience
+- `styles.css` — responsive visual system
+- `app.js` — program-finder quiz and navigation/reveal behavior
+- `assets/` — current prototype imagery
+- `vercel.json` — static Vercel configuration
 
-The Master of Organizational Leadership copy is based on the supplied MOL proposal. Before public launch, confirm final institutional approval, delivery format, tuition, admissions requirements, and the live application/advisor URLs.
+The prototype remains deployable without a build command. During modernization, its strongest elements—bold editorial typography, navy/red/cream palette, program cards, applied-learning story, graduate comparison, faith-and-business positioning, and program finder—will be migrated into accessible reusable components.
 
-## Recommended next iteration
-1. Swap `assets/kingswood-mark.png` (400×400 raster flame mark) for the official Kingswood vector/SVG logo.
-2. Add real student/alumni outcome stories and employer logos.
-3. Connect quiz completion to CRM / enrolment counsellor follow-up.
-4. Split each program into its own conversion-focused landing page.
-5. Add tuition/financial aid blocks after current figures are approved.
-6. Instrument analytics: quiz-start, quiz-complete, program-card click, advisor click, application click.
+## Approved modernization direction
+
+Kingswood will evolve this repository into two connected products:
+
+1. An enrollment-first public site built around program discovery, costs, visits, evidence, and clear next steps.
+2. Kingswood Compass, a governed AI layer beginning with public admissions guidance and later expanding into course-specific tutoring and faculty tools.
+
+Reference architecture:
+
+- Next.js and TypeScript
+- Payload CMS
+- Managed PostgreSQL with pgvector
+- Institutional SSO for staff and authenticated services
+- Provider-neutral AI gateway with retrieval, citations, evaluations, and human handoff
+- Consent-aware analytics and adapter-based institutional integrations
+
+Implementation will proceed in phases. The current static files remain the reference until the Next.js implementation reaches approved design, content, accessibility, performance, and conversion gates.
+
+## Governing documents
+
+Read these before changing platform architecture, content models, authentication, integrations, AI behavior, or delivery scope:
+
+- [Master plan](docs/00-master-plan.md)
+- [Content and data schema](docs/schema.md)
+- [Authentication, authorization, and privacy](docs/auth.md)
+- [Integration architecture](docs/integrations.md)
+- [Delivery roadmap](docs/roadmap.md)
+- [Kingswood Compass AI strategy](docs/ai-integrations.md)
+
+## Content guardrails
+
+- The site markets the currently listed B.A. in Business Management, not an unapproved replacement.
+- Master of Organizational Leadership claims require institutional confirmation before public launch.
+- Tuition, requirements, deadlines, accreditation, outcomes, and program status require an owner, source, and review date.
+- Scraped or migrated content enters draft status and is never auto-published.
+- AI services may answer only from approved sources and may not promise admission, aid, transfer credit, immigration, licensure, calling, or employment outcomes.
+
+## Branch strategy
+
+- `main` — preserved working prototype and approved releases
+- `modernization/phase-1-foundation` — current modernization work
+- Short-lived feature branches — scoped implementation work merged through review
+
+## Phase 1 outcome
+
+Phase 1 delivers an accessible mobile-first foundation, structured program finder and pages, admissions/cost/visit/parent/international pathways, staff-editable CMS, short integrated forms, analytics and redirects, plus a limited public-content-only Ask Kingswood assistant behind a feature flag.
+
+See the roadmap and master plan for gates and sequencing.
