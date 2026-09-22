@@ -8,7 +8,7 @@
 
 Integrate **Payload CMS 3.x directly into the existing Next.js App Router application**, backed by managed PostgreSQL and Vercel Blob. Do not create a separate CMS repository or a second frontend. The public website and `/admin` should deploy as one Vercel project, with Payload's Local API used from Server Components wherever possible.
 
-This is now a compatible path. Payload officially supports Next.js 16.2.x beginning with Payload 3.73.0, and Payload's official templates have since moved to Next.js 16.2.6. The current official release page shows Payload 3.88.0 and a later template move to Next.js 16.3.0. Therefore, the repository's Next.js 16.2.6 and React 19.2 baseline can remain unchanged for the CMS integration.
+This is now a compatible path. Payload officially supports Next.js 16.2.x beginning with Payload 3.73.0, and Payload's official templates have since moved to Next.js 16.2.6. The current official release page shows Payload 3.88.0 and a later template move to Next.js 16.3.0. Keep Next.js at 16.2.6 and pin React and React DOM to 19.2.1 for the first CMS integration; do not leave React on a range that can resolve to 19.3.
 
 ## Package policy
 
@@ -23,11 +23,12 @@ Initial packages:
   "@payloadcms/db-postgres": "3.88.0",
   "@payloadcms/richtext-lexical": "3.88.0",
   "@payloadcms/storage-vercel-blob": "3.88.0",
+  "graphql": "<exact tested 16.x version>",
   "sharp": "<exact tested version>"
 }
 ```
 
-`sharp` is needed for image resizing, crops and focal points. GraphQL is optional and should not be installed unless Kingswood identifies a real GraphQL consumer; the Local and REST APIs cover the planned site.
+`sharp` is needed for image resizing, crops and focal points. Install `graphql` because Payload declares it as a peer dependency, but do not expose GraphQL routes unless Kingswood identifies a real GraphQL consumer; the Local and REST APIs cover the planned site.
 
 Keep Next.js at exactly `16.2.6` during the first CMS slice. Upgrade Next.js and Payload only in a separate dependency PR after CMS acceptance tests pass. Commit a lockfile and use `npm ci` in CI once packages are installed.
 
@@ -54,7 +55,7 @@ src/access/
 src/migrations/
 ```
 
-The existing root page will need to move into the frontend route group without changing its URL. Add `@payload-config` to TypeScript paths and wrap the existing `next.config.ts` export with `withPayload`. Preserve the existing security headers and image configuration.
+The existing root layout and public pages will need to move into the frontend route group without changing their URLs. This keeps the public and Payload root layouts separate and avoids nested document markup or public styles leaking into the Admin UI. Add `@payload-config` to TypeScript paths and wrap the existing `next.config.ts` export with `withPayload` only when Payload is activated. Preserve the existing security headers and image configuration.
 
 ### PostgreSQL
 
@@ -175,19 +176,22 @@ Each step should be its own reversible PR or tightly scoped group of commits. Do
 The following work is safe now and does not require creating a paid or externally persistent resource:
 
 - Add and pin Payload packages and a lockfile.
-- Add the official `(payload)` route files, `payload.config.ts`, `withPayload` wrapper and TypeScript alias.
+- Add inactive `payload.config.ts`, collection/global definitions, access functions and the TypeScript alias, provided the public application does not import or evaluate the config.
 - Define collections, globals, blocks, RBAC functions and generated TypeScript types.
 - Build the frontend content adapter and fixtures.
 - Add unit tests for access rules and schema helpers.
 - Add migration/type/import-map scripts and CI checks.
 - Extend `.env.example` with non-secret placeholders.
 - Draft the administrator/editor runbooks and first-user checklist.
-- Verify `npm run lint`, `npm run typecheck` and `npm run build` using an ephemeral/local Postgres instance.
+- Verify the unchanged public application with `npm run lint`, `npm run typecheck` and `npm run build`.
+
+Do not add the official `(payload)` routes, wrap `next.config.ts` with `withPayload`, or replace the normal build with `payload build` until a disposable development or Preview Postgres database and `PAYLOAD_SECRET` are available. Payload's compile-only build mode is useful for syntax checks but is not proof that Admin or a production deployment works.
 
 These actions require provisioning or explicit provider access and should wait for the infrastructure decision:
 
 - Connecting Vercel Marketplace Postgres.
 - Creating the production Blob store.
+- Activating the Payload route group and `withPayload` wrapper before a disposable non-production database exists.
 - Setting production secrets.
 - Running migrations against production.
 - Creating the first real staff account.
@@ -210,4 +214,3 @@ Before merging the CMS-enabled release to `main`:
 ## Recommendation to proceed
 
 Proceed now with the compatibility scaffold through step 4 on a short-lived feature branch, using a disposable development database only when the initial config needs to run. Pause before creating Vercel Postgres/Blob resources or production accounts. After the scaffold produces a clean local and Vercel Preview build, present the provider/cost choice and the working `/admin` workflow for approval, then provision production infrastructure.
-
