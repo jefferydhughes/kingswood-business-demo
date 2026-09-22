@@ -1,23 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-
-export type InstitutionalPageData = {
-  eyebrow: string;
-  title: string;
-  introduction: string;
-  sections: Array<{
-    title: string;
-    description: string;
-    href?: string;
-    linkLabel?: string;
-  }>;
-  nextStep: {
-    title: string;
-    description: string;
-    primaryLabel: string;
-    primaryHref: string;
-  };
-};
+import type { InstitutionalPageData } from "@/content/types";
 
 const navigation = [
   ["Academics", "/academics"],
