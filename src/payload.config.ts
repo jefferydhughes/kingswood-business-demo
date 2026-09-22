@@ -23,12 +23,10 @@ const deploymentURL = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : canonicalURL;
 const allowedOrigins = [...new Set([canonicalURL, deploymentURL])];
-const isNonProductionDatabase =
-  process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview";
-
 /**
- * Preview CMS configuration. Schema push is restricted to local development
- * and Vercel Preview. Production must use reviewed, committed migrations.
+ * Relational schema changes are applied from committed migrations during the
+ * deployment build. Runtime schema push is disabled in every environment so a
+ * serverless request never attempts DDL work.
  */
 export default buildConfig({
   admin: {
@@ -44,7 +42,7 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL ?? "",
       max: 1,
     },
-    push: isNonProductionDatabase,
+    push: false,
   }),
   editor: lexicalEditor(),
   maxDepth: 4,
