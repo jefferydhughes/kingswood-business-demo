@@ -9,6 +9,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "payload": "payload",
+    "payload:generate-importmap": "payload generate:importmap",
+    "payload:generate-types": "payload generate:types",
+    "payload:migrate": "payload migrate",
+    "payload:migrate-create": "payload migrate:create",
     "typecheck": "tsc --noEmit",
     "check": "npm run lint && npm run typecheck && npm run build"
   },
