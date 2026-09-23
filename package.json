@@ -6,7 +6,7 @@
   "engines": { "node": ">=22" },
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/migrate-if-configured.mjs && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint .",
     "payload": "payload",
