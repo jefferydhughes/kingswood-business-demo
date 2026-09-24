@@ -15,6 +15,7 @@ import { Users } from "@/collections/Users";
 import { Footer } from "@/globals/Footer";
 import { Header } from "@/globals/Header";
 import { SiteSettings } from "@/globals/SiteSettings";
+import { databasePoolOptions } from "@/lib/database/pool";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -23,12 +24,10 @@ const deploymentURL = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : canonicalURL;
 const allowedOrigins = [...new Set([canonicalURL, deploymentURL])];
-const isNonProductionDatabase =
-  process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview";
-
 /**
- * Preview CMS configuration. Schema push is restricted to local development
- * and Vercel Preview. Production must use reviewed, committed migrations.
+ * Relational schema changes are applied separately from committed migrations.
+ * Runtime schema push is disabled in every environment so a
+ * serverless request never attempts DDL work.
  */
 export default buildConfig({
   admin: {
@@ -40,11 +39,8 @@ export default buildConfig({
   cors: allowedOrigins,
   csrf: allowedOrigins,
   db: postgresAdapter({
-    pool: {
-      connectionString: process.env.DATABASE_URL ?? "",
-      max: 1,
-    },
-    push: isNonProductionDatabase,
+    pool: databasePoolOptions(process.env.DATABASE_URL ?? ""),
+    push: false,
   }),
   editor: lexicalEditor(),
   maxDepth: 4,
