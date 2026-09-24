@@ -16,6 +16,7 @@ test("Supabase TLS survives pg URL parsing and preserves credentials and non-TLS
   assert.equal(url.searchParams.get("application_name"), "cms");
   assert.equal(url.searchParams.has("sslmode"), false);
   assert.equal(options.connectionTimeoutMillis, 10_000);
+  assert.ok(options.max >= 3);
 });
 
 test("Non-Supabase hosts keep their existing TLS configuration", () => {

@@ -5,7 +5,9 @@ import { certificate } from "./supabase-ca.json";
 export function databasePoolOptions(connectionString: string) {
   const defaults = {
     connectionString,
-    max: 1,
+    // Payload 3.88 retains a connection for reconnect handling. Leave room
+    // for queries and migration transactions alongside that connection.
+    max: 3,
     connectionTimeoutMillis: 10_000,
     idleTimeoutMillis: 10_000,
   };

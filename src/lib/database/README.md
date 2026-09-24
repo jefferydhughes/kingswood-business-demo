@@ -9,6 +9,8 @@ Valid until April 26, 2031. This is a public trust certificate, not a secret.
 Supabase connections use this CA alongside Node's standard roots and retain
 certificate and hostname verification. Other database hosts retain their URL's
 TLS configuration. Connection acquisition is bounded to 10 seconds.
+The pool allows three connections because Payload 3.88 retains one for reconnect
+handling; queries and migration transactions need additional connections.
 
 Migrations are a separate operation: `npm run payload:migrate`. A successful
 Vercel build does not verify database connectivity or apply migrations.
