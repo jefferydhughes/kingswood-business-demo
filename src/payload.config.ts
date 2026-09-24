@@ -15,6 +15,7 @@ import { Users } from "@/collections/Users";
 import { Footer } from "@/globals/Footer";
 import { Header } from "@/globals/Header";
 import { SiteSettings } from "@/globals/SiteSettings";
+import { databasePoolOptions } from "@/lib/database/pool";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -24,8 +25,8 @@ const deploymentURL = process.env.VERCEL_URL
   : canonicalURL;
 const allowedOrigins = [...new Set([canonicalURL, deploymentURL])];
 /**
- * Relational schema changes are applied from committed migrations during the
- * deployment build. Runtime schema push is disabled in every environment so a
+ * Relational schema changes are applied separately from committed migrations.
+ * Runtime schema push is disabled in every environment so a
  * serverless request never attempts DDL work.
  */
 export default buildConfig({
@@ -38,10 +39,7 @@ export default buildConfig({
   cors: allowedOrigins,
   csrf: allowedOrigins,
   db: postgresAdapter({
-    pool: {
-      connectionString: process.env.DATABASE_URL ?? "",
-      max: 1,
-    },
+    pool: databasePoolOptions(process.env.DATABASE_URL ?? ""),
     push: false,
   }),
   editor: lexicalEditor(),
