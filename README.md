@@ -1,64 +1,82 @@
-# Kingswood School of Business — Recruitment Demo
+﻿# Kingswood digital enrollment
 
-This repository contains the original School of Business recruitment prototype and the approved foundation for evolving it into Kingswood University's mobile-first digital enrollment platform.
+An early recruitment-site foundation for Kingswood University, built with Next.js App Router, TypeScript, React, and Zod. The original static business-school prototype remains as a design reference.
 
-## Current design reference
+**Start each session with [the project handoff](docs/handoff.md).** It records progress, issues, validation, and next steps. Planning documents describe intended scope, not completed features.
 
-The original static prototype is intentionally preserved as the visual, messaging, and interaction reference:
+## Current implementation
 
-- `index.html` — School of Business recruitment experience
-- `styles.css` — responsive visual system
-- `app.js` — program-finder quiz and navigation/reveal behavior
-- `assets/` — current prototype imagery
-- `vercel.json` — static Vercel configuration
+- Business recruitment landing page at `/`, responsive navigation, program cards, graduate comparison, and a client-side program finder.
+- JSON inquiry endpoint at `POST /api/forms/inquiry`, with validation and a server-only Salesforce Lead adapter. No inquiry form UI yet.
+- Basic metadata, security headers, and GitHub Actions for lint, TypeScript, and production build.
+- Vercel configuration targets **Next.js**, not the static prototype.
 
-The prototype remains deployable without a build command. During modernization, its strongest elements—bold editorial typography, navy/red/cream palette, program cards, applied-learning story, graduate comparison, faith-and-business positioning, and program finder—will be migrated into accessible reusable components.
+Payload CMS, database persistence, staff authentication, analytics, search, complete program/admissions pages, and Ask Kingswood are planned but not implemented. The inquiry integration is not launch-ready; see the handoff.
 
-## Approved modernization direction
+## Local setup
 
-Kingswood will evolve this repository into two connected products:
+Use Node.js 22 to match `.nvmrc` and CI; `package.json` permits 22 or newer.
 
-1. An enrollment-first public site built around program discovery, costs, visits, evidence, and clear next steps.
-2. Kingswood Compass, a governed AI layer beginning with public admissions guidance and later expanding into course-specific tutoring and faculty tools.
+```sh
+npm install --ignore-scripts
+npm run dev
+```
 
-Reference architecture:
+Open `http://localhost:3000`. On Windows PowerShell, use `npm.cmd` if execution policy blocks `npm.ps1`.
 
-- Next.js and TypeScript
-- Payload CMS
-- Managed PostgreSQL with pgvector
-- Institutional SSO for staff and authenticated services
-- Provider-neutral AI gateway with retrieval, citations, evaluations, and human handoff
-- Consent-aware analytics and adapter-based institutional integrations
+No credentials are needed to view the landing page. For integration configuration, copy `.env.example` to `.env.local` only if the destination does not already exist, then set sandbox values. Never overwrite an existing environment file or commit secrets.
 
-Implementation will proceed in phases. The current static files remain the reference until the Next.js implementation reaches approved design, content, accessibility, performance, and conversion gates.
+There is no committed lockfile, so use `npm install`, not `npm ci`. Reproducible installation is a tracked follow-up.
 
-## Governing documents
+## Commands
 
-Read these before changing platform architecture, content models, authentication, integrations, AI behavior, or delivery scope:
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Local development server |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript without emitting files |
+| `npm run build` | Production build |
+| `npm run check` | Lint, typecheck, then build |
+| `npm start` | Serve an existing production build |
 
-- [Master plan](docs/00-master-plan.md)
-- [Content and data schema](docs/schema.md)
-- [Authentication, authorization, and privacy](docs/auth.md)
-- [Integration architecture](docs/integrations.md)
-- [Delivery roadmap](docs/roadmap.md)
-- [Kingswood Compass AI strategy](docs/ai-integrations.md)
+The build uses Google fonts through `next/font/google` and may require network access. No automated unit, integration, or browser test suite is configured. See the handoff for the latest observed validation result; CI configuration alone is not evidence of a passing run.
 
-## Content guardrails
+## Configuration
 
-- The site markets the currently listed B.A. in Business Management, not an unapproved replacement.
-- Master of Organizational Leadership claims require institutional confirmation before public launch.
-- Tuition, requirements, deadlines, accreditation, outcomes, and program status require an owner, source, and review date.
-- Scraped or migrated content enters draft status and is never auto-published.
-- AI services may answer only from approved sources and may not promise admission, aid, transfer credit, immigration, licensure, calling, or employment outcomes.
+Use [.env.example](.env.example) as the inventory and [Salesforce mapping](docs/integrations/salesforce-mapping.md) for requirements.
 
-## Branch strategy
+| Variables | Current use |
+| --- | --- |
+| `SALESFORCE_CLIENT_ID`, `SALESFORCE_CLIENT_SECRET` | Enable the server-side adapter |
+| `SALESFORCE_LOGIN_URL` | Set explicitly for sandbox use; code defaults to production login when omitted |
+| `SALESFORCE_API_VERSION`, `SALESFORCE_EXTERNAL_ID_FIELD`, `SALESFORCE_DEFAULT_COMPANY` | API and Lead mapping configuration |
+| `SALESFORCE_CAMPAIGN_ID` | Read by configuration; campaign enrollment is not wired into the inquiry route |
+| `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_ASK_KINGSWOOD_ENABLED` | Placeholders, not consumed by application code |
+| `DATABASE_URL`, `PAYLOAD_SECRET`, `BLOB_READ_WRITE_TOKEN` | Reserved for future CMS implementation |
 
-- `main` — preserved working prototype and approved releases
-- `modernization/phase-1-foundation` — current modernization work
-- Short-lived feature branches — scoped implementation work merged through review
+The inquiry endpoint returns `415` for unsupported content type, `400` for invalid input, and `503` when unconfigured. A successful CRM write returns `202`; no durable local queue exists. Use sandbox credentials for integration testing.
 
-## Phase 1 outcome
+## Repository map
 
-Phase 1 delivers an accessible mobile-first foundation, structured program finder and pages, admissions/cost/visit/parent/international pathways, staff-editable CMS, short integrated forms, analytics and redirects, plus a limited public-content-only Ask Kingswood assistant behind a feature flag.
+| Path | Responsibility |
+| --- | --- |
+| `src/app/` | Active homepage, layout, styles, inquiry API |
+| `src/components/` | Navigation and program finder |
+| `src/lib/forms/` | Inquiry validation |
+| `src/lib/integrations/` | CRM contracts and Salesforce adapter |
+| `index.html`, `styles.css`, `app.js`, `assets/` | Static prototype; not the active Next.js route |
+| `.github/workflows/ci.yml` | Foundation checks |
+| `docs/handoff.md` | Maintained progress and next-session entry point |
 
-See the roadmap and master plan for gates and sequencing.
+## Planning and content rules
+
+- [Master plan](docs/00-master-plan.md): proposed platform and approval gate.
+- [Roadmap](docs/roadmap.md): phases and acceptance gates.
+- [Schema](docs/schema.md): intended content/data model.
+- [Authentication and privacy](docs/auth.md): roles and data boundaries.
+- [Integrations](docs/integrations.md) and [Salesforce mapping](docs/integrations/salesforce-mapping.md): contracts and discovery.
+- [Compass AI strategy](docs/ai-integrations.md): future AI scope.
+
+Keep the current B.A. in Business Management naming. Master of Organizational Leadership claims require institutional confirmation before publication. Critical program, tuition, deadline, accreditation, and outcome facts need an owner, source, and review date. Migrated content enters draft status. Future AI must use approved sources and must not promise admissions, aid, transfer, immigration, licensure, or employment outcomes.
+
+The reviewed branch is `modernization/phase-1-foundation`; check the actual branch before working. Update the handoff at the end of every session, including incomplete work and validation failures.
