@@ -1,17 +1,28 @@
-﻿# Kingswood digital enrollment
+# Kingswood digital enrollment
 
-An early recruitment-site foundation for Kingswood University, built with Next.js App Router, TypeScript, React, and Zod. The original static business-school prototype remains as a design reference.
+A recruitment-site demo for Kingswood University, built with Next.js App Router, TypeScript, React, and Zod. The original static business-school prototype remains as a design reference.
 
 **Start each session with [the project handoff](docs/handoff.md).** It records progress, issues, validation, and next steps. Planning documents describe intended scope, not completed features.
 
-## Current implementation
+## Online demo (verified September 30, 2026)
+
+The deployed project is ahead of this checkout. Vercel serves `main` commit `a790843c412c8c82aaabdfc567d85e67eaed3103`; this workspace remains on the older `modernization/phase-1-foundation` branch at `ca3b040`. Do not infer overall project completion from this branch alone.
+
+- [Homepage](https://kingswood-business-demo.vercel.app/): business landing page, HTTP 200.
+- [Academics](https://kingswood-business-demo.vercel.app/academics), [Admissions](https://kingswood-business-demo.vercel.app/admissions), [Student life](https://kingswood-business-demo.vercel.app/student-life), [About](https://kingswood-business-demo.vercel.app/about): all HTTP 200. Foundation pages link onward to the existing university website.
+- [Main demo admin](https://kingswood-business-demo.vercel.app/admin/): Payload exists, but returned HTTP 500 during this check.
+- [CMS preview login](https://kingswood-business-demo-ldftla59z-jeffs-projects-3a93e6bd.vercel.app/admin/login): HTTP 200; authenticated editing was not tested. Vercel may require sign-in for preview access.
+
+The homepage navigation links to sections within the business page, so it does not expose the four university subpages. No separate university-wide homepage was found. See the handoff for the deployment and CMS history.
+
+## Current checkout implementation
 
 - Business recruitment landing page at `/`, responsive navigation, program cards, graduate comparison, and a client-side program finder.
 - JSON inquiry endpoint at `POST /api/forms/inquiry`, with validation and a server-only Salesforce Lead adapter. No inquiry form UI yet.
 - Basic metadata, security headers, and GitHub Actions for lint, TypeScript, and production build.
 - Vercel configuration targets **Next.js**, not the static prototype.
 
-Payload CMS, database persistence, staff authentication, analytics, search, complete program/admissions pages, and Ask Kingswood are planned but not implemented. The inquiry integration is not launch-ready; see the handoff.
+In this older checkout, Payload CMS, database persistence, staff authentication, analytics, search, complete program/admissions pages, and Ask Kingswood are absent. Later deployed work includes Payload CMS and four university foundation pages; these must not be rebuilt based on this checkout inventory. Salesforce access is not available yet. The adapter is scaffolding for future integration, not a connected demo feature. Production integration requirements are deferred and do not block demo work; see the handoff.
 
 ## Local setup
 
@@ -24,7 +35,7 @@ npm run dev
 
 Open `http://localhost:3000`. On Windows PowerShell, use `npm.cmd` if execution policy blocks `npm.ps1`.
 
-No credentials are needed to view the landing page. For integration configuration, copy `.env.example` to `.env.local` only if the destination does not already exist, then set sandbox values. Never overwrite an existing environment file or commit secrets.
+No credentials or Salesforce access are needed to run the demo. Leave Salesforce credentials unset. When access becomes available for future integration work, copy `.env.example` to `.env.local` only if the destination does not already exist, then set sandbox values. Never overwrite an existing environment file or commit secrets.
 
 There is no committed lockfile, so use `npm install`, not `npm ci`. Reproducible installation is a tracked follow-up.
 
@@ -54,7 +65,7 @@ Use [.env.example](.env.example) as the inventory and [Salesforce mapping](docs/
 | `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_ASK_KINGSWOOD_ENABLED` | Placeholders, not consumed by application code |
 | `DATABASE_URL`, `PAYLOAD_SECRET`, `BLOB_READ_WRITE_TOKEN` | Reserved for future CMS implementation |
 
-The inquiry endpoint returns `415` for unsupported content type, `400` for invalid input, and `503` when unconfigured. A successful CRM write returns `202`; no durable local queue exists. Use sandbox credentials for integration testing.
+The inquiry endpoint returns `415` for unsupported content type, `400` for invalid input, and `503` when unconfigured. A successful CRM write returns `202`; no durable local queue exists. Live integration testing is deferred until Salesforce access is available. No simulated submission mode is currently implemented.
 
 ## Repository map
 
@@ -79,4 +90,4 @@ The inquiry endpoint returns `415` for unsupported content type, `400` for inval
 
 Keep the current B.A. in Business Management naming. Master of Organizational Leadership claims require institutional confirmation before publication. Critical program, tuition, deadline, accreditation, and outcome facts need an owner, source, and review date. Migrated content enters draft status. Future AI must use approved sources and must not promise admissions, aid, transfer, immigration, licensure, or employment outcomes.
 
-The reviewed branch is `modernization/phase-1-foundation`; check the actual branch before working. Update the handoff at the end of every session, including incomplete work and validation failures.
+The reviewed local branch is `modernization/phase-1-foundation`, which is behind the deployed `main`; reconcile branches before implementation. Update the handoff at the end of every session, including incomplete work and validation failures.

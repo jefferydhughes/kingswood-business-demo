@@ -1,114 +1,108 @@
 ﻿# Project handoff
 
-**Last reviewed:** September 30, 2026 (America/Halifax)
-**Reviewed branch:** `modernization/phase-1-foundation`
-**Reviewed code baseline:** `ca3b040` (ignore-file update)
-**Stage:** Early Phase 1 foundation; not ready for public launch.
-**Next action:** Establish passing local checks, then resolve inquiry reliability and mapping gaps before connecting a public form.
+**Updated:** September 30, 2026 (America/Halifax)
+**Scope:** Demo. Salesforce access is not available yet.
+**Local branch:** `modernization/phase-1-foundation` at `ca3b040`.
+**Online deployment:** `main` at `a790843c412c8c82aaabdfc567d85e67eaed3103`.
+**Next action:** Reconcile this older checkout with deployed main while preserving documentation changes; then expose the existing university subpages in navigation and investigate the main admin error as separately scoped work.
 
-This is the operational source of truth for progress. Keep the snapshot and next actions current; use the session log for history. Architecture documents describe intended scope and acceptance gates.
+## Critical correction to the initial review
 
-## Resume in five minutes
+The first review inspected only the older foundation checkout and incorrectly generalized its missing CMS and subpages to the whole project. Vercel inspection and live HTTP checks confirmed later work exists online. Do not recreate the CMS or four subpages. Check deployment and branch state before deciding what remains.
 
-1. Read this file. Run `git status --short`, `git branch --show-current`, and `git log -5 --oneline`; preserve unfinished changes.
-2. Compare the current commit with the baseline above. Review intervening changes rather than rediscovering the entire project.
-3. Check the validation table below. Use Node 22, install dependencies if needed, and run `npm run check` (`npm.cmd` on this Windows machine).
-4. Choose the first unblocked next-work item; record the task and owner under Active work.
-5. At session end, update status, checks, blockers, next action, and session log. Link commits/PRs and deployment evidence when available.
+## Verified online routes
 
-## Active work
+Checked through the connected Vercel fetch tool on September 30, 2026. These are HTTP/HTML checks, not a full browser or authenticated editing test. The browser CLI is not installed in this environment.
 
-- Implementation task: none recorded at handoff.
-- Last completed task: repository review and README/handoff draft.
-- Assigned implementation owner: not recorded.
-- Worktree at review start: clean.
-- Pending changes from this session: documentation only (`README.md`, `docs/handoff.md`).
-
-## Implemented versus planned
-
-| Area | Evidence and current status |
+| URL | Observed result |
 | --- | --- |
-| Static prototype | Root HTML/CSS/JS and imagery retained as reference. |
-| Application | Next.js 16.2.6, React 19, TypeScript, Zod. Payload is not a dependency. |
-| Public UI | `src/app/page.tsx`, `SiteHeader.tsx`, `ProgramFinder.tsx`: one landing page and goal-based finder. No complete internal program routes. |
-| Accessibility | Skip link, navigation labels, Escape handling, finder live region exist. No completed browser/accessibility audit recorded here. |
-| Inquiry API | JSON validation and direct Salesforce call. No frontend form, persistence, queue, rate limiting, or automated tests. |
-| Salesforce | OAuth client credentials and Lead upsert; basic identity/contact mapping. Campaign method exists but is not called by inquiry route. Sandbox success unverified. |
-| CMS/database/auth | Documented only; no Payload config, collections, migrations, database client, admin route, or staff auth. Environment filenames do not prove provisioning. |
-| Analytics/search/AI | Planned only. Ask Kingswood flag has no implementation behind it. |
-| Delivery | Vercel targets Next.js. CI installs and runs lint/typecheck/build. Live deployment and external CI results unverified. |
+| [Homepage](https://kingswood-business-demo.vercel.app/) | HTTP 200; business landing page, "Build what matters", logo and student hero image |
+| [Academics](https://kingswood-business-demo.vercel.app/academics) | HTTP 200; "Prepare for your calling" |
+| [Admissions](https://kingswood-business-demo.vercel.app/admissions) | HTTP 200; "Your next step starts here" |
+| [Student life](https://kingswood-business-demo.vercel.app/student-life) | HTTP 200; "Learn in community" |
+| [About](https://kingswood-business-demo.vercel.app/about) | HTTP 200; "Education shaped by purpose" |
+| [Main admin](https://kingswood-business-demo.vercel.app/admin/) | HTTP 500; Payload page exists but is failing |
+| [Main admin login](https://kingswood-business-demo.vercel.app/admin/login/) | HTTP 500 |
+| [CMS preview admin](https://kingswood-business-demo-ldftla59z-jeffs-projects-3a93e6bd.vercel.app/admin) | HTTP 200 with application redirect to `/admin/login` |
+| [CMS preview login](https://kingswood-business-demo-ldftla59z-jeffs-projects-3a93e6bd.vercel.app/admin/login) | HTTP 200, "Login - Payload"; account access/editing not tested |
 
-## Review findings and launch blockers
+Some fetch attempts returned connector access errors; successful results above are the observed HTTP responses. Preview access may require Vercel authentication. No accounts were created or credentials changed.
 
-Source-inspection findings, not runtime reproductions. Application code was not changed during this documentation task.
+The homepage links to business-page anchors and the existing university website; it does not link to the four demo subpages. Those subpages share a university navigation linking Academics, Admissions, Student life, and About. This explains why they are difficult to discover from the homepage.
 
-| Priority | Finding and evidence | Follow-up |
+There is no separate university-wide homepage in the inspected route inventory. The original static `index.html` remains a local design reference, not evidence of a second active homepage. The four subpages are foundation pages, not a completed content migration; they direct users to existing university pages for details.
+
+## Deployment and source map
+
+- Vercel project: `kingswood-business-demo`, ID `prj_tzKBiRauI2e139Ggn2Rv1QM0ODqU`.
+- Current production-target deployment: `dpl_ECgxzA1cHNQqcBAQmM5KaAhFRQSe`, READY, serving `main` commit `a790843c412c8c82aaabdfc567d85e67eaed3103` (merge PR #8, CMS migration initialization).
+- Production alias: `https://kingswood-business-demo.vercel.app`.
+- CMS preview: `dpl_GFbnXepWaGkVzoRnbQAZ1Ugh9jd6`, branch `cms/migration-first-init`, commit `13540f16437658ac7657720da44b8c6589a31e73`.
+- Local `origin/main` currently points to older `808f4b1`; remote-tracking references are stale relative to Vercel deployment evidence.
+- A separate CMS checkout exists at `.cms-diagnostics/cms`; it has an existing modification to `src/payload-types.ts`. Preserve it. Do not blindly replace or delete that checkout.
+- Its route inventory includes frontend `/`, `/academics`, `/admissions`, `/student-life`, `/about`, plus Payload admin/API and inquiry API.
+- Its content composition root still selects `fixtureContentRepository`. CMS presence does not mean public pages are already editable through it; verify the deployed binding before promising that behavior.
+
+## CMS progress and limits
+
+The local historical report `.cms-diagnostics/RESULTS.md` records the September 24 CMS investigation: trusted database TLS, corrected credentials, connection-pool fix, approved initial migration applied, 29 tables verified, and preview admin runtime verification. These are historical findings, not a fresh database audit.
+
+That report ended with first-user setup; today's preview response redirects to login. Account ownership and usable login credentials were not checked. Email adapter and Vercel media storage were reported unconfigured historically and have not been rechecked.
+
+Current known problem: main demo admin returns HTTP 500 while the CMS preview responds. Root cause has not been established; inspect production logs and configuration before changing anything. No migration, database reset, deployment, or secret update was performed in this review.
+
+## Current work and next steps
+
+- Latest completed task: live deployment/route inventory and correction of README/handoff.
+- Pending local changes: `README.md` and `docs/handoff.md`; no application changes from these documentation sessions.
+- Implementation owner: not recorded.
+
+| Order | Work | Completion evidence |
 | --- | --- | --- |
-| High | Inquiry `route.ts` generates a fresh UUID per request; `salesforce.ts` ignores idempotency context. No durable outbox. Retries may duplicate Leads, subject to Salesforce matching rules. | Persist submissions, define stable retry identity, add outbox/retries/dead-letter/reconciliation, and test outages and duplicates. |
-| High | Consent, policy version, attribution, and academic interest are assembled in memory but omitted by `leadPayload`, with no local persistence. | Confirm Salesforce/privacy model and implement approved persistence/mapping before exposing a form. |
-| High | Unconfirmed Master of Organizational Leadership appears in program cards, comparison text, and finder results. A verification label is not a publication control. | Confirm institutional approval or remove/gate all affected content before launch. |
-| Medium | `companyWebsite` has `.max(0)` in the schema, so populated honeypots fail validation before reaching the intended `202` response. | Align validation and spam handling; test both cases. |
-| Medium | Campaign configuration does not cause enrollment. A `204` Lead upsert response returns the submission UUID as `externalId`, not a resolved Salesforce Lead ID. | Resolve Lead ID before using it for CampaignMember; wire and test campaign handling. |
-| Medium | No throttling or explicit fetch timeout; token failures are all classified as retryable network failures. | Add abuse controls, bounded requests, and correct permanent/transient failure classification. |
-| Medium | No committed lockfile; CI uses `npm install --ignore-scripts`. | Review/commit a lockfile and use reproducible CI installation. |
-| Low | Final `.env*` ignore rule overrides `!.env.example`. Existing example remains tracked, but new matching templates would be ignored. | Consolidate ignore rules and preserve template exception. |
+| 1 | Reconcile working branch with deployed main, preserving local edits | Current source baseline recorded; CMS/subpages retained; no duplicate rebuild |
+| 2 | Make existing demo pages discoverable | Homepage links to the four university subpages; desktop/mobile navigation verified |
+| 3 | Diagnose main admin HTTP 500 | Cause supported by runtime evidence; fix and verification scoped separately |
+| 4 | Confirm CMS editing path | Authorized login tested, collections/content binding understood; no assumption that fixture pages are CMS-driven |
+| 5 | Improve demo presentation and content | Prioritized visible gaps, placeholder claims identified, intended homepage direction recorded |
 
-## Next work, in order
+Salesforce work is deferred until access is available. No simulated inquiry mode exists in the reviewed foundation code; if a demo form is needed, explicitly simulate with sample data and label the result. CMS/email/storage completion and production launch requirements should follow the agreed demo scope.
 
-Owners are suggested roles, not recorded assignments.
+## Retained source-review findings
 
-| Order | Task | Done when | Dependency / proposed owner |
-| --- | --- | --- | --- |
-| 1 | Verify development baseline | Reviewed lockfile; passing lint/typecheck/build; linked CI result; desktop/mobile navigation and finder checked | Developer; dependency/network access |
-| 2 | Confirm scope and integration decisions | Approval status, content owners, Salesforce object/field mapping, sandbox access, consent model recorded | Project owner, admissions, IT/privacy |
-| 3 | Make inquiry handling reliable | Stable idempotency, durable storage/outbox, retries, corrected honeypot, approved mapping, focused API/adapter tests | Developer; item 2 and storage decision |
-| 4 | Deliver inquiry flow | Accessible UI, error/retry states, consent capture, verified sandbox receipt without duplicate delivery | Developer/admissions; item 3 |
-| 5 | Build CMS foundation | Payload/PostgreSQL, reviewed migrations, roles, drafts, preview, one approved program rendered from CMS | Developer/content owner; scope and provisioning |
-| 6 | Expand enrollment content | Program/admissions/cost/visit routes, analytics/consent, redirects, content approval, accessibility/performance evidence | Product/content/development; roadmap gates |
+These were found in the older foundation code. Recheck against current main before fixing; later work may differ.
 
-Ask Kingswood is later work. The roadmap puts its pilot in Phase 3 but includes a flagged proof in the Must backlog; confirm the Phase 1 boundary before implementation.
+- Fresh submission UUID per inquiry and no durable outbox; idempotency context ignored by adapter.
+- Consent, attribution, and academic interest assembled in memory but omitted from Lead payload.
+- Honeypot schema rejects populated values before the intended success-like handler runs.
+- Campaign method not invoked; `204` upsert returns submission UUID rather than Salesforce Lead ID.
+- No explicit upstream fetch timeout or throttling; token failures classified as retryable network errors.
+- Unconfirmed Organizational Leadership claims appear in demo content; confirm or identify placeholders before broader publication.
+- No tracked lockfile in the older checkout; final `.env*` ignore rule overrides the template exception.
 
-## Decisions and unresolved information
+CRM findings are future integration requirements, not demo blockers. Master plan approval language and actual scope decisions still need reconciliation; existing implemented work is not proof of institutional production approval.
 
-- Implemented: Next.js/TypeScript; Salesforce behind a generic CRM adapter; preserved prototype.
-- Proposed: Payload and managed PostgreSQL, neither installed nor proven operational here.
-- Approval record conflicts: the previous README called the direction approved, while the master plan says **Proposed for approval** and includes an implementation gate. Code exists, but no explicit approval record was found in the reviewed material. Record the decision/date/owner rather than inferring approval from code.
-- Broad integration inventory calls systems unconfirmed; Salesforce-specific mapping names Salesforce as current recruitment system of record. Reconcile during discovery.
-- Unknown: deployment URL/health, current CI results, sandbox readiness, CMS/database provisioning, content owners, launch date, institutional scope approval.
-- Never copy secrets or prospect data here. `.env.local`, `.env.cms-preview.local`, `.vercel/`, and `.cms-diagnostics/` are local artifacts, not shared progress records. Their contents were not used in this review.
+## Validation
 
-## Latest verification
+- Live homepage and four subpages: HTTP 200; HTML content checked.
+- Main admin and login: HTTP 500; preview admin/login respond as above.
+- Vercel deployment: READY, verified through deployment metadata; READY does not guarantee all runtime routes work.
+- Local `npm.cmd run check` on the old foundation branch: blocked at ESLint because `node_modules` is absent; typecheck/build did not run.
+- Local Node is `v24.20.0`; project/CI target Node 22.
+- No fresh browser, authenticated CMS editing, database, or Salesforce tests.
+- Documentation whitespace checked with `git diff --check`.
 
-| Check | September 30, 2026 result |
-| --- | --- |
-| Source review | Application, CRM/schema, config, CI, recent history, planning documents reviewed |
-| Tooling | Node `v24.20.0` installed; project/CI target Node 22 |
-| Dependencies | `node_modules` absent; no tracked lockfile |
-| `npm.cmd run check` | Blocked at lint: ESLint not found because dependencies are absent. Typecheck/build did not run. |
-| Browser/accessibility/API tests | Not run; no dev server started or CRM requests sent |
-| External systems | No deployment, database, or Salesforce success claimed |
+## Daily handoff routine
 
-This is a source review with an attempted check, not a passing build certification. Install dependencies and repeat validation first.
+At session start, read this document, inspect `git status --short`, current branch, and recent history. Compare working code, remote main, and the deployed commit; do not assume they match. Review only relevant changes and select the first unblocked task.
 
-## End-of-session update contract
-
-The person or agent doing the work updates this file before handing off. Replace stale current status instead of accumulating contradictory snapshots. Keep setup in the README and architecture in existing planning documents.
-
-Record:
-
-- Date, branch, reviewed commit, and uncommitted work.
-- Changes with file/commit/PR links and completion evidence.
-- Exact checks and outcomes; distinguish failed, blocked, and not run.
-- Blockers, missing inputs/decisions, and owners when known.
-- One exact next action and remaining ordered work.
-- Deployment URL and deployed commit only when verified.
+At session end, update this snapshot rather than adding contradictory current states. Record completed work, commit/PR links, uncommitted changes, exact checks/results, blockers and owners, one exact next action, and verified deployment URLs/commits. Keep secrets and prospect data out of documentation.
 
 ## Session log
 
-### 2026-09-30 — Review and documentation
+### 2026-09-30
 
-- Reviewed `ca3b040` on `modernization/phase-1-foundation`; starting worktree clean.
-- Replaced stale static-deployment README with actual Next.js setup and feature boundaries.
-- Added this progress snapshot, findings, next steps, and daily update contract.
-- Attempted `npm.cmd run check`; blocked at ESLint by missing dependencies. No application fixes, deployments, or external writes.
-- Next session: use Node 22, install dependencies, establish reproducible installation, and capture passing checks before feature work.
+- Reviewed older foundation branch and drafted README/handoff; local checks blocked by missing dependencies.
+- User confirmed demo scope and lack of Salesforce access; deferred real CRM work.
+- Broadened review to Vercel and CMS diagnostic checkout. Found deployed CMS and four live subpages on newer main; corrected the initial project-wide conclusions.
+- Verified main admin failure and responding preview login; recorded URLs and navigation gap.
+- No application changes, account creation, external writes, or deployments.
