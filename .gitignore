@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+.vercel/
+.cms-diagnostics/
+node_modules/
+.next/
+tsconfig.tsbuildinfo
+*.log
+
+.vercel
+.env*
