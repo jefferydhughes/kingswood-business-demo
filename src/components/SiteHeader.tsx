@@ -5,10 +5,10 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 const links = [
-  ["Programs", "#programs"],
-  ["Experience", "#experience"],
-  ["Faith & Business", "#purpose"],
-  ["Graduate Degrees", "#graduate"],
+  ["Pathway", "#pathway"],
+  ["Degrees", "#degrees"],
+  ["Business Lab", "#lab"],
+  ["MBA", "#mba"],
 ] as const;
 
 export function SiteHeader() {
@@ -48,7 +48,7 @@ export function SiteHeader() {
         </button>
         <nav ref={menu} id="primary-navigation" className={open ? "primary-nav open" : "primary-nav"} aria-label="Primary navigation">
           {links.map(([label, href]) => <Link key={href} href={href} onClick={() => setOpen(false)}>{label}</Link>)}
-          <Link className="button compact" href="#program-finder" onClick={() => setOpen(false)}>Find my program</Link>
+          <Link className="button compact" href="https://www.kingswood.edu/admissions" onClick={() => setOpen(false)}>Request information</Link>
         </nav>
       </div>
     </header>
