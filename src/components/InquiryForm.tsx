@@ -13,6 +13,8 @@ type Props = {
   /** Show the demo-mode disclosure. */
   reviewMode?: boolean;
   source: string;
+  /** "encounter" adds grade, church or youth group, and a parent contact, and a notice for younger students. */
+  variant?: "default" | "encounter";
 };
 
 type Status = "idle" | "sending" | "sent" | "unavailable" | "error";
@@ -24,7 +26,7 @@ function splitName(full: string) {
   return { givenName: parts[0] || undefined, familyName: parts.slice(1).join(" ") || undefined };
 }
 
-export function InquiryForm({ programInterest, role = "student", compact = false, reviewMode = true, source }: Props) {
+export function InquiryForm({ programInterest, role = "student", compact = false, reviewMode = true, source, variant = "default" }: Props) {
   const uid = useId();
   const [status, setStatus] = useState<Status>("idle");
   const [fieldError, setFieldError] = useState<string | null>(null);
@@ -38,6 +40,11 @@ export function InquiryForm({ programInterest, role = "student", compact = false
       setFieldError("Enter an email address we can reply to.");
       return;
     }
+    const guardianEmail = String(form.get("guardianEmail") ?? "").trim();
+    if (guardianEmail && !/^\S+@\S+\.\S+$/.test(guardianEmail)) {
+      setFieldError("Check the parent or guardian email, or leave it blank.");
+      return;
+    }
     const params = new URLSearchParams(window.location.search);
     const interest = [String(form.get("programInterest") ?? ""), `asked by: ${String(form.get("role") ?? role)}`, `from: ${source}`]
       .filter(Boolean)
@@ -48,6 +55,9 @@ export function InquiryForm({ programInterest, role = "student", compact = false
       province: String(form.get("province") ?? "") || undefined,
       programInterest: interest.slice(0, 120),
       intendedStart: String(form.get("intendedStart") ?? "") || undefined,
+      grade: String(form.get("grade") ?? "") || undefined,
+      church: String(form.get("church") ?? "").trim() || undefined,
+      guardianEmail: guardianEmail || undefined,
       landingPath: window.location.pathname || "/",
       utmSource: params.get("utm_source") ?? undefined,
       utmMedium: params.get("utm_medium") ?? undefined,
@@ -85,6 +95,7 @@ export function InquiryForm({ programInterest, role = "student", compact = false
           <select id={`${uid}-role`} name="role" defaultValue={role}>
             <option value="student">student</option>
             <option value="parent">parent or guardian</option>
+            {variant === "encounter" && <option value="youth pastor or leader">youth pastor or leader</option>}
           </select>
         </label>
         <label htmlFor={`${uid}-name`}>First and last name
@@ -117,6 +128,25 @@ export function InquiryForm({ programInterest, role = "student", compact = false
           <option>Elements first year</option>
         </select>
       </label>
+      {variant === "encounter" && (
+        <>
+          <div className="field-row">
+            <label htmlFor={`${uid}-grade`}>Grade or stage
+              <select id={`${uid}-grade`} name="grade" defaultValue="">
+                <option value="">Choose one</option>
+                <option>Grade 10</option><option>Grade 11</option><option>Grade 12</option><option>Graduated</option><option>Parent or guardian</option><option>Youth pastor or leader</option>
+              </select>
+            </label>
+            <label htmlFor={`${uid}-church`}>Church or youth group
+              <input id={`${uid}-church`} name="church" type="text" autoComplete="organization" />
+            </label>
+          </div>
+          <label htmlFor={`${uid}-guardian`}>Parent or guardian email (optional)
+            <input id={`${uid}-guardian`} name="guardianEmail" type="email" autoComplete="off" />
+          </label>
+          <p className="form-note">Grade 10 and up can send this themselves. Younger students: please ask a parent or your youth pastor to send it for you. If you are under 18, check with a parent or guardian first. We use your details only to reply about Kingswood.</p>
+        </>
+      )}
       <div className="hp" aria-hidden="true"><label>Company website<input name="companyWebsite" tabIndex={-1} autoComplete="off" /></label></div>
       <label className="check" htmlFor={`${uid}-consent`}>
         <input id={`${uid}-consent`} name="consentEmail" type="checkbox" />
@@ -133,7 +163,7 @@ export function InquiryForm({ programInterest, role = "student", compact = false
         </p>
       )}
       {status === "error" && <p className="form-error" role="alert">Something went wrong. Check your details and try again.</p>}
-      {reviewMode && status !== "unavailable" && <p className="form-note">Demo: submissions are not stored until the inquiry service is connected.</p>}
+      {reviewMode && status !== "unavailable" && <p className="form-note">Demo: submissions are delivered only once email delivery is configured.</p>}
     </form>
   );
 }

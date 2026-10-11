@@ -274,3 +274,13 @@ h1 em,h2 em { color:var(--brand-red); font-style:normal; }
 @media (min-width:64rem) {
   .contact-grid { grid-template-columns:.9fr 1fr; gap:6rem; }
 }
+
+/* Recruiting contact and Encounter page. */
+.person { display:grid; gap:.1rem; margin:1.5rem 0 0; padding-left:1rem; border-left:5px solid var(--brand-red); }
+.person span { color:var(--muted); }
+.person a { display:inline-flex; align-items:center; min-height:2.75rem; font-weight:800; text-decoration:underline; text-underline-offset:.25em; }
+.degree-grid.two { grid-template-columns:1fr; }
+.interest-line { margin-top:1.5rem; padding:1rem 1.25rem; border-left:5px solid var(--brand-red); background:var(--brand-warm); font-weight:700; }
+.families-link a { text-decoration:underline; }
+.question-list.plain a { text-decoration:underline; }
+@media (min-width:40rem) { .degree-grid.two { grid-template-columns:repeat(2,1fr); } }

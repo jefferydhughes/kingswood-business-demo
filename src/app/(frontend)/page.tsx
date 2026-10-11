@@ -8,6 +8,7 @@ import { Expand } from "@/components/Expand";
 import { ShareButton } from "@/components/ShareButton";
 import { Tracker } from "@/components/Tracker";
 import { costFacts, costSourceLine } from "@/content/facts";
+import { recruitingContact } from "@/content/contact";
 
 export const metadata: Metadata = {
   title: "School of Business",
@@ -398,7 +399,7 @@ export default function Home() {
                 <li><strong>Outcomes.</strong> Every year ends with proof of what a student can do: a portfolio, client results, and financials.</li>
                 <li><strong>Cost.</strong> Published figures are in the cost section, with the aid Kingswood reports.</li>
                 <li><strong>Living on campus.</strong> A standard double room is {room.toLowerCase()}, and meal plans are {meals}.</li>
-                <li><strong>A person to ask.</strong> Use the form below. A real person replies.</li>
+                <li><strong>A person to ask.</strong> {recruitingContact.name}, {recruitingContact.title}, replies personally: <a href={`mailto:${recruitingContact.email}`}>{recruitingContact.email}</a>.</li>
               </ul>
             </div>
           </div>
@@ -474,6 +475,7 @@ export default function Home() {
               <p className="eyebrow">TALK TO A PERSON</p>
               <h2>Ask your questions. <em>A real person replies.</em></h2>
               <p className="lead dark-lead">Students, parents, and pastors are all welcome. Tell us where you are and what you are wondering.</p>
+              <p className="person"><strong>{recruitingContact.name}</strong><span>{recruitingContact.title}</span><a href={`mailto:${recruitingContact.email}`} data-cta="contact-email">{recruitingContact.email}</a></p>
             </div>
             <div className="contact-card">
               <InquiryForm source="page-bottom" reviewMode={reviewMode} />

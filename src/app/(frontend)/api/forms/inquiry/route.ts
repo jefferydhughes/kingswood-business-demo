@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { inquirySchema } from "@/lib/forms/inquiry-schema";
 import { createSalesforceAdapter } from "@/lib/integrations/salesforce";
 import type { ProspectInput } from "@/lib/integrations/contracts";
+import { notifierConfigured, sendInquiryEmail } from "@/lib/forms/notify";
 
 export async function POST(request: Request) {
   const contentType = request.headers.get("content-type") ?? "";
@@ -20,7 +21,8 @@ export async function POST(request: Request) {
   }
 
   const adapter = createSalesforceAdapter();
-  if (!adapter) {
+  const emailEnabled = notifierConfigured();
+  if (!adapter && !emailEnabled) {
     return NextResponse.json({ error: "inquiry_service_not_configured" }, { status: 503 });
   }
 
@@ -52,10 +54,19 @@ export async function POST(request: Request) {
     ],
   };
 
-  const result = await adapter.upsertProspect(prospect, { idempotencyKey: submissionId });
-  if (!result.ok) {
-    const status = result.kind === "retryable" ? 503 : 422;
-    return NextResponse.json({ error: result.code }, { status });
+  let delivered = false;
+  let retryable = false;
+  if (emailEnabled) {
+    delivered = await sendInquiryEmail(parsed.data, submissionId);
+    if (!delivered) retryable = true;
+  }
+  if (adapter) {
+    const result = await adapter.upsertProspect(prospect, { idempotencyKey: submissionId });
+    if (result.ok) delivered = true;
+    else if (result.kind === "retryable") retryable = true;
+  }
+  if (!delivered) {
+    return NextResponse.json({ error: retryable ? "delivery_failed_retry" : "rejected" }, { status: retryable ? 503 : 422 });
   }
 
   return NextResponse.json({ submissionId, status: "received" }, { status: 202 });
