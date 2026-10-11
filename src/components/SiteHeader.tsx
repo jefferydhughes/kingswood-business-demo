@@ -5,8 +5,9 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 const links = [
-  ["Pathway", "#pathway"],
+  ["Cost", "#cost"],
   ["Degrees", "#degrees"],
+  ["Pathway", "#pathway"],
   ["Business Lab", "#lab"],
   ["MBA", "#mba"],
 ] as const;
@@ -48,7 +49,7 @@ export function SiteHeader() {
         </button>
         <nav ref={menu} id="primary-navigation" className={open ? "primary-nav open" : "primary-nav"} aria-label="Primary navigation">
           {links.map(([label, href]) => <Link key={href} href={href} onClick={() => setOpen(false)}>{label}</Link>)}
-          <Link className="button compact" href="https://www.kingswood.edu/admissions" onClick={() => setOpen(false)}>Request information</Link>
+          <Link className="button compact" href="#finder" data-cta="header-finder" onClick={() => setOpen(false)}>Find my path</Link>
         </nav>
       </div>
     </header>
