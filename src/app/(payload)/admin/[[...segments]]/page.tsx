@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import config from "@payload-config";
 import { RootPage, generatePageMetadata } from "@payloadcms/next/views";
 import { importMap } from "../importMap";
-import { CmsUnavailable } from "@/components/CmsUnavailable";
+import { CmsUnavailable, isPayloadInitError } from "@/components/CmsUnavailable";
 
 type Args = {
   params: Promise<{ segments: string[] }>;
@@ -26,9 +26,7 @@ export default async function AdminPage({ params, searchParams }: Args) {
   } catch (error) {
     // Payload throws during initialization when it cannot reach the database.
     // Anything else is a genuine fault and should surface as one.
-    if (error && typeof error === "object" && "payloadInitError" in error) {
-      return <CmsUnavailable />;
-    }
+    if (isPayloadInitError(error)) return <CmsUnavailable />;
     throw error;
   }
 }

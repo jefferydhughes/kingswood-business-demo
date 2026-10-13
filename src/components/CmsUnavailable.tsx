@@ -3,6 +3,11 @@
  * practice means the database named by DATABASE_URL is unreachable. Styles are
  * inline because this route does not load the public site's stylesheet.
  */
+/** Payload marks the failure to reach its database with this property. */
+export function isPayloadInitError(error: unknown): boolean {
+  return Boolean(error && typeof error === "object" && "payloadInitError" in error);
+}
+
 const palette = { blue: "#061722", red: "#972E2D", gray: "#CCCCCC", warm: "#DED8D0", white: "#FFFFFF" };
 
 export function CmsUnavailable() {

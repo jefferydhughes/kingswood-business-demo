@@ -1,4 +1,7 @@
-/* THIS FILE WAS GENERATED FROM THE OFFICIAL PAYLOAD APP ROUTER TEMPLATE. */
+/* GENERATED FROM THE OFFICIAL PAYLOAD APP ROUTER TEMPLATE, then wrapped so a
+   missing database produces an explanation rather than an unhandled error.
+   This route group has no shared root layout, so the fallback below supplies
+   its own document. */
 import config from "@payload-config";
 import "@payloadcms/next/css";
 import type { ServerFunctionClient } from "payload";
@@ -7,6 +10,7 @@ import type { ReactNode } from "react";
 
 import { importMap } from "./admin/importMap.js";
 import "./custom.css";
+import { CmsUnavailable, isPayloadInitError } from "@/components/CmsUnavailable";
 
 export { metadata } from "@payloadcms/next/layouts";
 
@@ -15,10 +19,17 @@ const serverFunction: ServerFunctionClient = async function (args) {
   return handleServerFunctions({ ...args, config, importMap });
 };
 
-export default function PayloadLayout({ children }: { children: ReactNode }) {
-  return (
-    <RootLayout config={config} importMap={importMap} serverFunction={serverFunction}>
-      {children}
-    </RootLayout>
-  );
+export default async function PayloadLayout({ children }: { children: ReactNode }) {
+  try {
+    return await RootLayout({ config, importMap, serverFunction, children });
+  } catch (error) {
+    if (!isPayloadInitError(error)) throw error;
+    return (
+      <html lang="en">
+        <body style={{ margin: 0 }}>
+          <CmsUnavailable />
+        </body>
+      </html>
+    );
+  }
 }
