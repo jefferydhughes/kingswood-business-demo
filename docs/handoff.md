@@ -19,31 +19,49 @@ adding a second document that contradicts it.
 | Inquiry form | Working end to end. Captures and reports honestly when no channel is configured | `POST /api/forms/inquiry` returns 202 with `mode: "demo"` |
 | Email delivery | Code complete, not switched on. Needs three Vercel variables | `src/lib/forms/notify.ts`, verified against a mock server |
 | Salesforce | Adapter present, deliberately unmapped beyond standard Lead fields | `src/lib/integrations/salesforce.ts` |
-| Payload CMS | Not available. The database it points at no longer exists. `/admin` returns 200 with an explanation rather than an error | `/admin` verified 200 on production |
+| Payload CMS | Unavailable while its Supabase project is paused and restoring. `/admin` returns 200 with an explanation rather than an error, and resumes normally once the database answers | `/admin` verified 200 on production |
 | Content source | Fixture content, not CMS content | `src/lib/content/fixture-repository.ts` is still the composition root |
 | Build | Clean. Lint, typecheck and production build all pass with no workaround | `npm run check` |
 
-## 2. The CMS database is gone
+## 2. The CMS database was unreachable
 
-The `/admin` HTTP 500 recorded in September has a definite cause. The Supabase project the
-deployment points at was deleted, not paused, and does not appear on the account. Payload
-cannot start without it.
+The `/admin` HTTP 500 recorded in September was caused by Payload being unable to reach its
+database. The Supabase project was paused, and as of October 13 Jeff reports Supabase is
+restoring it.
+
+Correction worth recording, because it nearly became a wrong decision. This file previously
+stated the project had been deleted. That was wrong. It came from reading a Supabase account
+listing that returned only the Skill Samurai organization, and concluding from an absence
+that the project was gone. The Kingswood project lives in an organization that listing did
+not cover. The pooler error, `(ENOTFOUND) tenant/user postgres.azgwspixvedmrgwcjysm not
+found`, is also what a paused project returns, because the tenant is dropped from pooler
+routing while paused, so the evidence never distinguished the two. The lesson is the obvious
+one: an empty listing is evidence about the listing, not about the world.
 
 `/admin` now returns HTTP 200 with a page that states the position plainly and sends the
 visitor back to the site. The public site never depended on the database and is unaffected.
 
+The fix holds either way, which is why it did not need revisiting when the cause changed. It
+is a readiness probe, not a hardcoded assumption: when the database answers, Payload starts
+normally and the page disappears. The result is cached for sixty seconds, so production
+picks up the restored database within a minute of it coming back, with no redeploy.
+
 Getting there took three attempts, which is worth recording so nobody repeats them. An
 error boundary was not enough, because Payload throws while the response is streaming, so
 the body rendered correctly but the status stayed 500. A name lookup was not enough either:
-a deleted Supabase project keeps resolving, because the pooler hostname is shared, and the
-tenant is rejected only once a connection is opened. The working answer is a short
+a paused or deleted Supabase project keeps resolving, because the pooler hostname is
+shared, and the tenant is rejected only once a connection is opened. The working answer is a short
 connection probe in `src/lib/database/reachable.ts`, cached for a minute, which decides
 before Payload starts.
 
-Standing up a replacement is scoped work, not a fix to this build. The public pages read
-from fixture content, so a working database would make the editing interface reachable but
-would not yet make the visible site editable. Binding the content layer to the CMS is the
-larger task behind it.
+Once the restore completes, check `/admin` and expect one of two things: a Payload login, or
+first-user setup if no admin account survives. The September notes recorded the initial
+migration applied and 29 tables verified, but no working login was ever confirmed, so treat
+account access as untested rather than expected.
+
+Note what a working database does not buy. The public pages read from fixture content, so
+the editing interface becomes reachable but the visible site is still not editable. Binding
+the content layer to the CMS is the larger task behind it.
 
 ## 3. September items, closed out
 
@@ -54,7 +72,7 @@ The five ordered items from the September handoff:
 | 1 | Reconcile the working branch with deployed main | Done. `main` is the single line of work; merged feature branches are listed for deletion in section 8 |
 | 2 | Make the existing demo pages discoverable | Done. The four university routes are in the site header, the landing page footer and the mobile action bar |
 | 3 | Diagnose the main admin HTTP 500 | Done. Root cause established and the route fixed. See section 2 |
-| 4 | Confirm the CMS editing path | Closed as not possible. There is no database to log into |
+| 4 | Confirm the CMS editing path | Still open. Blocked while the database was unreachable; testable once the restore completes |
 | 5 | Improve demo presentation and content | Done. See section 4 |
 
 The five retained source-review findings, rechecked against current code:
@@ -109,7 +127,7 @@ Ranked. Nothing here blocks the demo.
 | 2 | Shared rate-limit store | The current limiter counts within one serverless instance. Vercel KV or Upstash makes it cluster wide | Unassigned |
 | 3 | Published privacy notice | `consentPolicyVersion` is `demo-2026-10`, a version string with no policy behind it. Required before any marketing send, and before the Encounter form collects from minors | Kingswood, with counsel |
 | 4 | Owner for the cost figures | Tuition figures carry a source and a retrieval date but no owner. README.md requires one | Finance or Admissions |
-| 5 | Replacement database and CMS binding | Restores the editing interface, then makes the visible site CMS driven | Unassigned |
+| 5 | Confirm CMS access, then bind content to it | Database restore is in progress. Confirm a working login, then make the visible site CMS driven rather than fixture driven | Unassigned |
 | 6 | Salesforce field mapping | Consent, attribution and academic interest are collected but not mapped, by deliberate choice, until Kingswood exports its Salesforce schema | Deferred until access |
 | 7 | Campaign membership | `addToCampaign` has no caller and `campaignId` is read but unused | Deferred until access |
 | 8 | Logo asset at higher resolution | Served at its native 278x70 for a 39px render, so the wordmark is soft on high-density screens and on video | Unassigned |
@@ -213,9 +231,12 @@ deployment commit. Keep secrets and prospect data out of this file.
 
 - Read the September handoff, mapped repository against deployment, and ran two parallel
   reviews over the server path and the frontend.
-- Established the root cause of the `/admin` 500: the Supabase database was deleted. Fixed
-  the route to return 200 with an explanation, after two failed approaches recorded in
-  section 2.
+- Established that the `/admin` 500 was Payload failing to reach its database, and fixed the
+  route to return 200 with an explanation, after two failed approaches recorded in section 2.
+- Wrongly attributed the cause to a deleted Supabase project, from an account listing that
+  covered only one organization. Jeff corrected it the same day: the project was paused and
+  is being restored. The fix was unaffected, being a readiness probe rather than an
+  assumption about why the database was absent.
 - Built the demo capture path and `/demo/inquiries` so the enrollment flow completes without
   a CRM, and nothing claims a delivery that did not happen.
 - Made the four university routes reachable and consistent with the rest of the site.

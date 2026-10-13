@@ -10,10 +10,12 @@ import { databasePoolOptions } from "./pool";
  * admin route decide before Payload starts, so an absent database returns a
  * real page with a real status code.
  *
- * A name lookup is not enough: a deleted Supabase project keeps resolving,
- * because the pooler hostname is shared, and rejects the tenant only once a
- * connection is opened. The result is cached so this costs one short-lived
- * connection per minute per instance.
+ * A name lookup is not enough: a paused or deleted Supabase project keeps
+ * resolving, because the pooler hostname is shared, and rejects the tenant only
+ * once a connection is opened. The result is cached so this costs one short-lived
+ * connection per minute per instance, which also means a database that comes
+ * back, after a paused project is restored, is picked up within a minute with no
+ * redeploy.
  */
 const TTL_MS = 60_000;
 const CONNECT_TIMEOUT_MS = 4000;
