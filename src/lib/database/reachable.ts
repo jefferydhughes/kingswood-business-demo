@@ -36,7 +36,12 @@ async function probe(): Promise<boolean> {
   try {
     await client.connect();
     return true;
-  } catch {
+  } catch (error) {
+    // Logged so an operator can tell a paused project from a wrong password or
+    // a timeout. The connection string is never logged.
+    const code = error && typeof error === "object" && "code" in error ? String(error.code) : "unknown";
+    const message = error instanceof Error ? error.message : "";
+    console.error("cms database probe failed", { code, message: message.slice(0, 200) });
     return false;
   } finally {
     await client.end().catch(() => {});
