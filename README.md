@@ -15,7 +15,7 @@ does not, and what to do next.
 | Inquiry form | Working. Captures submissions and states plainly when nothing was delivered |
 | Email delivery | Code complete, switched off. Needs three environment variables |
 | Salesforce | Adapter present, unmapped beyond standard Lead fields, awaiting institutional access |
-| Payload CMS | Unavailable while its Supabase project is paused and restoring. `/admin` explains this rather than erroring, and resumes on its own once the database answers |
+| Payload CMS | Connected. `/admin` serves the Payload login and is waiting for its first admin user to be created |
 | Content | Served from fixtures, not from the CMS |
 
 ## Running it
