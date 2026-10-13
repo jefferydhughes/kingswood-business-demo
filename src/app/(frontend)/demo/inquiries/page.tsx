@@ -39,7 +39,7 @@ export default function DemoInquiries() {
           <p className="footnote-dark">
             This page exists only while no CRM and no email channel are configured, and it disappears as soon as one is.
             Records are held in the memory of a single server instance, so they are lost on restart and this is not a store
-            of record. A durable inquiry table is named as a launch requirement in the progress document.
+            of record. A durable inquiry table is named as a launch requirement in the handoff document.
           </p>
 
           {captures.length === 0 ? (

@@ -37,7 +37,7 @@ export function CmsUnavailable() {
         </p>
         <p style={{ margin: "0 0 1.75rem", color: palette.warm, fontSize: "1.05rem" }}>
           Connecting a database and restoring editor access is a scoped piece of work. It is recorded in the project
-          progress document, along with what has to follow it before the site becomes editable.
+          handoff document, along with what has to follow it before the site becomes editable.
         </p>
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- the Payload admin is a separate document tree from the public app, so a full navigation is correct here. */}
         <a

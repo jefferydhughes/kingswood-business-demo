@@ -4,7 +4,7 @@
  * Counters live in the memory of a single serverless instance, so this reduces
  * the damage one client can do but is not a cluster-wide guarantee. A shared
  * store (Vercel KV or Upstash) is the production answer and is recorded as a
- * launch requirement in docs/progress.md.
+ * launch requirement in docs/handoff.md.
  */
 const WINDOW_MS = 10 * 60 * 1000;
 const MAX_PER_WINDOW = 5;
