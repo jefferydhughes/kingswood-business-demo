@@ -19,7 +19,7 @@ adding a second document that contradicts it.
 | Inquiry form | Working end to end. Captures and reports honestly when no channel is configured | `POST /api/forms/inquiry` returns 202 with `mode: "demo"` |
 | Email delivery | Code complete, not switched on. Needs three Vercel variables | `src/lib/forms/notify.ts`, verified against a mock server |
 | Salesforce | Adapter present, deliberately unmapped beyond standard Lead fields | `src/lib/integrations/salesforce.ts` |
-| Payload CMS | Unavailable while its Supabase project is paused and restoring. `/admin` returns 200 with an explanation rather than an error, and resumes normally once the database answers | `/admin` verified 200 on production |
+| Payload CMS | Database is restored and answering, but rejects the stored credential. One environment variable away from working. `/admin` returns 200 with an explanation meanwhile | Probe log: `28P01 password authentication failed for user "postgres"` |
 | Content source | Fixture content, not CMS content | `src/lib/content/fixture-repository.ts` is still the composition root |
 | Build | Clean. Lint, typecheck and production build all pass with no workaround | `npm run check` |
 
@@ -54,10 +54,26 @@ shared, and the tenant is rejected only once a connection is opened. The working
 connection probe in `src/lib/database/reachable.ts`, cached for a minute, which decides
 before Payload starts.
 
-Once the restore completes, check `/admin` and expect one of two things: a Payload login, or
-first-user setup if no admin account survives. The September notes recorded the initial
-migration applied and 29 tables verified, but no working login was ever confirmed, so treat
-account access as untested rather than expected.
+**Current blocker, October 13.** The Supabase project is restored and healthy, and the
+database now answers. It rejects the credential in `DATABASE_URL`:
+
+```
+cms database probe failed { code: '28P01',
+  message: 'password authentication failed for user "postgres"' }
+```
+
+`28P01` is Postgres for a bad password, which means host, port, TLS and pooler routing are
+all fine. The stored password no longer matches, which is consistent with a restore having
+reset it.
+
+The fix is one environment variable. In the Supabase dashboard, Project Settings then
+Database, copy the current connection string, resetting the password if the dashboard does
+not reveal it. Put it in `DATABASE_URL` in the Vercel project and redeploy. Production picks
+it up within the probe's sixty second cache. Nothing in the code needs to change.
+
+After that, expect `/admin` to show either a Payload login or first-user setup. The September
+notes recorded the initial migration applied and 29 tables verified, but no working login was
+ever confirmed, so treat account access as untested rather than expected.
 
 Note what a working database does not buy. The public pages read from fixture content, so
 the editing interface becomes reachable but the visible site is still not editable. Binding
@@ -72,7 +88,7 @@ The five ordered items from the September handoff:
 | 1 | Reconcile the working branch with deployed main | Done. `main` is the single line of work; merged feature branches are listed for deletion in section 8 |
 | 2 | Make the existing demo pages discoverable | Done. The four university routes are in the site header, the landing page footer and the mobile action bar |
 | 3 | Diagnose the main admin HTTP 500 | Done. Root cause established and the route fixed. See section 2 |
-| 4 | Confirm the CMS editing path | Still open. Blocked while the database was unreachable; testable once the restore completes |
+| 4 | Confirm the CMS editing path | Still open. Database restored; blocked on a stale `DATABASE_URL` password. See section 2 |
 | 5 | Improve demo presentation and content | Done. See section 4 |
 
 The five retained source-review findings, rechecked against current code:
@@ -127,7 +143,7 @@ Ranked. Nothing here blocks the demo.
 | 2 | Shared rate-limit store | The current limiter counts within one serverless instance. Vercel KV or Upstash makes it cluster wide | Unassigned |
 | 3 | Published privacy notice | `consentPolicyVersion` is `demo-2026-10`, a version string with no policy behind it. Required before any marketing send, and before the Encounter form collects from minors | Kingswood, with counsel |
 | 4 | Owner for the cost figures | Tuition figures carry a source and a retrieval date but no owner. README.md requires one | Finance or Admissions |
-| 5 | Confirm CMS access, then bind content to it | Database restore is in progress. Confirm a working login, then make the visible site CMS driven rather than fixture driven | Unassigned |
+| 5 | Refresh `DATABASE_URL`, confirm CMS access, then bind content to it | The database is back and rejecting a stale password. One variable, then a login test, then the real work of making the visible site CMS driven rather than fixture driven | Jeff for the variable, then unassigned |
 | 6 | Salesforce field mapping | Consent, attribution and academic interest are collected but not mapped, by deliberate choice, until Kingswood exports its Salesforce schema | Deferred until access |
 | 7 | Campaign membership | `addToCampaign` has no caller and `campaignId` is read but unused | Deferred until access |
 | 8 | Logo asset at higher resolution | Served at its native 278x70 for a 39px render, so the wordmark is soft on high-density screens and on video | Unassigned |
@@ -237,6 +253,9 @@ deployment commit. Keep secrets and prospect data out of this file.
   covered only one organization. Jeff corrected it the same day: the project was paused and
   is being restored. The fix was unaffected, being a readiness probe rather than an
   assumption about why the database was absent.
+- Added failure logging to the probe, which immediately earned its place: with the project
+  restored, the database answers and rejects the stored password (`28P01`). Recorded in
+  section 2 with the one-variable fix.
 - Built the demo capture path and `/demo/inquiries` so the enrollment flow completes without
   a CRM, and nothing claims a delivery that did not happen.
 - Made the four university routes reachable and consistent with the rest of the site.
