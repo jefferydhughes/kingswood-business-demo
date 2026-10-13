@@ -43,6 +43,9 @@ export default buildConfig({
     push: false,
   }),
   editor: lexicalEditor(),
+  // Nothing in this application queries GraphQL. Leaving it enabled would
+  // publish a second, unguarded surface over every collection.
+  graphQL: { disable: true },
   maxDepth: 4,
   plugins: [
     vercelBlobStorage({

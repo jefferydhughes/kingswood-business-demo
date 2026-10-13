@@ -513,15 +513,17 @@ export default function Home() {
             {reviewMode && <p>Concept demo for internal review. Programs shown as proposed are not approved.</p>}
           </div>
           <div>
-            <a href="https://www.kingswood.edu/">University home</a>
-            <a href="https://www.kingswood.edu/admissions">Admissions</a>
-            <a href="https://www.kingswood.edu/mba">MBA</a>
+            <Link href="/academics" data-cta="footer-academics">Academics</Link>
+            <Link href="/admissions" data-cta="footer-admissions">Admissions</Link>
+            <Link href="/student-life" data-cta="footer-student-life">Student life</Link>
+            <Link href="/about" data-cta="footer-about">About Kingswood</Link>
+            <a href="https://www.kingswood.edu/" data-cta="footer-university-home">University home on kingswood.edu</a>
           </div>
         </div>
       </footer>
       <nav className="mobile-actions" aria-label="Enrollment actions">
         <a href="#finder" data-cta="mobile-finder">Find my path</a>
-        <a href="https://www.kingswood.edu/admissions/apply-now" data-cta="mobile-apply">Apply</a>
+        <Link href="/admissions" data-cta="mobile-apply">Admissions</Link>
       </nav>
       <Tracker />
     </>

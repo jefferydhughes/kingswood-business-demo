@@ -18,6 +18,7 @@ export async function sendInquiryEmail(input: InquiryInput, submissionId: string
     `Name: ${clean(name)}`,
     `Email: ${clean(input.email)}`,
     `Interest: ${clean(input.programInterest) || "(none)"}`,
+    `Asked by: ${clean(input.role) || "(not given)"}`,
     `Grade or stage: ${clean(input.grade) || "(not given)"}`,
     `Church or youth group: ${clean(input.church) || "(not given)"}`,
     `Parent or guardian email: ${clean(input.guardianEmail) || "(not given)"}`,
@@ -26,13 +27,14 @@ export async function sendInquiryEmail(input: InquiryInput, submissionId: string
     `Agreed to updates by email: ${input.consentEmail ? "yes" : "no"}`,
     "",
     `Page: ${clean(input.landingPath)}`,
+    `Form: ${clean(input.source) || "(not given)"}`,
     `Campaign: ${[input.utmSource, input.utmMedium, input.utmCampaign].map(clean).filter(Boolean).join(" / ") || "(none)"}`,
     `Reference: ${submissionId}`,
     `Received: ${new Date().toISOString()}`,
   ];
   const subject = `New business inquiry: ${clean(name)}${input.programInterest ? ` (${clean(input.programInterest).slice(0, 60)})` : ""}`;
   try {
-    const res = await fetch(process.env.RESEND_API_URL ?? "https://api.resend.com/emails", {
+    const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { authorization: `Bearer ${process.env.RESEND_API_KEY}`, "content-type": "application/json", "idempotency-key": submissionId },
       body: JSON.stringify({

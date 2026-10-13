@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { InquiryForm } from "./InquiryForm";
 import { track } from "@/lib/analytics";
 
@@ -104,12 +104,24 @@ export function ProgramFinder({ reviewMode = true }: { reviewMode?: boolean }) {
   const headingId = useId();
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
+  const questionRef = useRef<HTMLParagraphElement>(null);
+  const resultRef = useRef<HTMLHeadingElement>(null);
+  /** Nothing is focused on first paint; only move focus once the visitor has started. */
+  const started = useRef(false);
   const done = index >= steps.length;
   const role: Role = answers.role ?? "student";
   const step = steps[index];
   const result = done && answers.goal ? programs[answers.goal] : null;
 
+  // Each answer unmounts the button that was clicked, so focus would otherwise
+  // fall to the document body and a keyboard user would tab from the top again.
+  useEffect(() => {
+    if (!started.current) return;
+    (questionRef.current ?? resultRef.current)?.focus();
+  }, [index]);
+
   function choose(value: string) {
+    started.current = true;
     if (!step) return;
     const next = { ...answers, [step.key]: value } as Answers;
     setAnswers(next);
@@ -126,17 +138,17 @@ export function ProgramFinder({ reviewMode = true }: { reviewMode?: boolean }) {
         {!done && <p className="finder-progress" aria-live="polite">Question {index + 1} of {steps.length}</p>}
       </div>
       {!done && step ? (
-        <div className="finder-options" role="group" aria-label={step.title(role)}>
-          <p className="finder-question">{step.title(role)}</p>
+        <div className="finder-options" role="group">
+          <p className="finder-question" ref={questionRef} tabIndex={-1}>{step.title(role)}</p>
           {step.options(role).map(([value, label]) => (
             <button key={value} type="button" onClick={() => choose(value)} data-cta={`finder-${step.key}`}>{label}</button>
           ))}
-          {index > 0 && <button type="button" className="text-button" onClick={() => setIndex(index - 1)}>Back</button>}
+          {index > 0 && <button type="button" className="text-button" onClick={() => { started.current = true; setIndex(index - 1); }}>Back</button>}
         </div>
       ) : result && answers.priority ? (
-        <div className="finder-result" aria-live="polite">
-          <p className="eyebrow">A GOOD FIT TO EXPLORE</p>
-          <h3>{result.name}</h3>
+        <div className="finder-result">
+          <p className="eyebrow" role="status">A GOOD FIT TO EXPLORE</p>
+          <h3 ref={resultRef} tabIndex={-1}>{result.name}</h3>
           <p>{result.why[role]}</p>
           <p>{priorityLine[answers.priority][role]}</p>
           <a className="text-link-dark" href={result.href}>See how it works</a>

@@ -28,6 +28,8 @@ export const config = {
     "/admin/:path*",
     "/api/access/:path*",
     "/api/globals/:path*",
+    "/api/graphql/:path*",
+    "/api/graphql-playground/:path*",
     "/api/media/:path*",
     "/api/og/:path*",
     "/api/pages/:path*",

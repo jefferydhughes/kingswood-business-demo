@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { track } from "@/lib/analytics";
 
 type Props = {
@@ -18,8 +18,10 @@ type Props = {
 };
 
 type Status = "idle" | "sending" | "sent" | "unavailable" | "error";
+type FieldErrors = { email?: string; guardianEmail?: string };
 
 const POLICY_VERSION = "demo-2026-10";
+const EMAIL = /^\S+@\S+\.\S+$/;
 
 function splitName(full: string) {
   const parts = full.trim().split(/\s+/);
@@ -29,31 +31,37 @@ function splitName(full: string) {
 export function InquiryForm({ programInterest, role = "student", compact = false, reviewMode = true, source, variant = "default" }: Props) {
   const uid = useId();
   const [status, setStatus] = useState<Status>("idle");
-  const [fieldError, setFieldError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FieldErrors>({});
+  /** Set when the server captured the inquiry without delivering it anywhere. */
+  const [demoNotice, setDemoNotice] = useState<string | null>(null);
+  const doneRef = useRef<HTMLDivElement>(null);
+
+  // The form unmounts on success, so move focus to the confirmation rather
+  // than dropping the keyboard user back at the top of the document.
+  useEffect(() => {
+    if (status === "sent") doneRef.current?.focus();
+  }, [status]);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setFieldError(null);
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") ?? "").trim();
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
-      setFieldError("Enter an email address we can reply to.");
-      return;
-    }
     const guardianEmail = String(form.get("guardianEmail") ?? "").trim();
-    if (guardianEmail && !/^\S+@\S+\.\S+$/.test(guardianEmail)) {
-      setFieldError("Check the parent or guardian email, or leave it blank.");
-      return;
-    }
+
+    const nextErrors: FieldErrors = {};
+    if (!EMAIL.test(email)) nextErrors.email = "Enter an email address we can reply to.";
+    if (guardianEmail && !EMAIL.test(guardianEmail)) nextErrors.guardianEmail = "Check this address, or leave it blank.";
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
     const params = new URLSearchParams(window.location.search);
-    const interest = [String(form.get("programInterest") ?? ""), `asked by: ${String(form.get("role") ?? role)}`, `from: ${source}`]
-      .filter(Boolean)
-      .join(" | ");
     const payload = {
       email,
       ...splitName(String(form.get("name") ?? "")),
       province: String(form.get("province") ?? "") || undefined,
-      programInterest: interest.slice(0, 120),
+      programInterest: String(form.get("programInterest") ?? "") || undefined,
+      role: String(form.get("role") ?? role) || undefined,
+      source,
       intendedStart: String(form.get("intendedStart") ?? "") || undefined,
       grade: String(form.get("grade") ?? "") || undefined,
       church: String(form.get("church") ?? "").trim() || undefined,
@@ -67,12 +75,22 @@ export function InquiryForm({ programInterest, role = "student", compact = false
       consentPolicyVersion: POLICY_VERSION,
       companyWebsite: String(form.get("companyWebsite") ?? ""),
     };
+
     setStatus("sending");
     try {
       const res = await fetch("/api/forms/inquiry", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
-      if (res.ok) { setStatus("sent"); track("inquiry_submit", { source, role: String(form.get("role") ?? role) }); }
-      else if (res.status === 503) setStatus("unavailable");
-      else setStatus("error");
+      if (res.ok) {
+        const body = await res.json().catch(() => null);
+        setDemoNotice(body?.mode === "demo" ? body.message ?? null : null);
+        setStatus("sent");
+        track("inquiry_submit", { source, role: String(form.get("role") ?? role), mode: body?.mode ?? "live" });
+      } else if (res.status === 429) {
+        setStatus("unavailable");
+      } else if (res.status === 503) {
+        setStatus("unavailable");
+      } else {
+        setStatus("error");
+      }
     } catch {
       setStatus("error");
     }
@@ -80,9 +98,14 @@ export function InquiryForm({ programInterest, role = "student", compact = false
 
   if (status === "sent") {
     return (
-      <div className="form-done" role="status">
+      <div className="form-done" role="status" tabIndex={-1} ref={doneRef}>
         <h3>Thank you. We will be in touch.</h3>
         <p>An enrolment counsellor will reply to the email you gave us.</p>
+        {demoNotice && (
+          <p className="form-demo-note">
+            <strong>Demonstration only.</strong> {demoNotice}
+          </p>
+        )}
       </div>
     );
   }
@@ -103,9 +126,9 @@ export function InquiryForm({ programInterest, role = "student", compact = false
         </label>
       </div>
       <label htmlFor={`${uid}-email`}>Email
-        <input id={`${uid}-email`} name="email" type="email" autoComplete="email" required aria-invalid={fieldError ? true : undefined} aria-describedby={fieldError ? `${uid}-err` : undefined} />
+        <input id={`${uid}-email`} name="email" type="email" autoComplete="email" required aria-invalid={errors.email ? true : undefined} aria-describedby={errors.email ? `${uid}-email-err` : undefined} />
       </label>
-      {fieldError && <p id={`${uid}-err`} className="form-error" role="alert">{fieldError}</p>}
+      {errors.email && <p id={`${uid}-email-err`} className="form-error">{errors.email}</p>}
       <div className="field-row">
         <label htmlFor={`${uid}-province`}>Province
           <select id={`${uid}-province`} name="province" defaultValue="New Brunswick">
@@ -142,8 +165,9 @@ export function InquiryForm({ programInterest, role = "student", compact = false
             </label>
           </div>
           <label htmlFor={`${uid}-guardian`}>Parent or guardian email (optional)
-            <input id={`${uid}-guardian`} name="guardianEmail" type="email" autoComplete="off" />
+            <input id={`${uid}-guardian`} name="guardianEmail" type="email" autoComplete="off" aria-invalid={errors.guardianEmail ? true : undefined} aria-describedby={errors.guardianEmail ? `${uid}-guardian-err` : undefined} />
           </label>
+          {errors.guardianEmail && <p id={`${uid}-guardian-err`} className="form-error">{errors.guardianEmail}</p>}
           <p className="form-note">Grade 10 and up can send this themselves. Younger students: please ask a parent or your youth pastor to send it for you. If you are under 18, check with a parent or guardian first. We use your details only to reply about Kingswood.</p>
         </>
       )}
@@ -156,14 +180,10 @@ export function InquiryForm({ programInterest, role = "student", compact = false
         {status === "sending" ? "Sending" : "Send my questions"}
       </button>
       {status === "unavailable" && (
-        <p className="form-error" role="alert">
-          {reviewMode
-            ? "Demo mode: the inquiry service is not connected yet, so nothing was saved."
-            : "We could not take your message just now. Please use Request information on kingswood.edu/admissions."}
-        </p>
+        <p className="form-error" role="alert">We could not take your message just now. Please wait a moment and try again, or email the contact above.</p>
       )}
       {status === "error" && <p className="form-error" role="alert">Something went wrong. Check your details and try again.</p>}
-      {reviewMode && status !== "unavailable" && <p className="form-note">Demo: submissions are delivered only once email delivery is configured.</p>}
+      {reviewMode && <p className="form-note">Demo build. Nothing is sent to a CRM or mailbox until those channels are configured.</p>}
     </form>
   );
 }

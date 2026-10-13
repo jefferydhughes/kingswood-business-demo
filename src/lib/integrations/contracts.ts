@@ -34,7 +34,10 @@ export type ProspectInput = {
 };
 
 export type AdapterResult =
-  | { ok: true; externalId: string; receivedAt: string }
+  // externalId is null when the upstream system accepted the record but did not
+  // return its identifier, as Salesforce does on a 204 update. Callers must not
+  // substitute the submission id, which is not a CRM identifier.
+  | { ok: true; externalId: string | null; receivedAt: string }
   | { ok: false; kind: "retryable" | "permanent"; code: string; safeMessage: string };
 
 export interface CrmAdapter {

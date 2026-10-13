@@ -10,6 +10,9 @@ export const inquirySchema = z.object({
   country: optionalShortText,
   province: optionalShortText,
   programInterest: optionalShortText,
+  /** Who is asking, and which page or campaign the form was served from. */
+  role: optionalShortText,
+  source: optionalShortText,
   intendedStart: optionalShortText,
   grade: optionalShortText,
   church: optionalShortText,
@@ -23,7 +26,9 @@ export const inquirySchema = z.object({
   consentEmail: z.boolean().default(false),
   consentSms: z.boolean().default(false),
   consentPolicyVersion: z.string().trim().min(1).max(40),
-  companyWebsite: z.string().max(0).optional(),
+  // Honeypot. Populated values must parse so the route can answer them like a
+  // success; rejecting them here would tell a bot which field caught it.
+  companyWebsite: z.string().max(200).optional(),
 });
 
 export type InquiryInput = z.infer<typeof inquirySchema>;
