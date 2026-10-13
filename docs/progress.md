@@ -2,7 +2,7 @@
 
 **Updated:** October 13, 2026 (America/Halifax)
 **Scope:** Demo build for stakeholder review. Salesforce access is not available.
-**Branch:** `main` at `805739e`.
+**Branch:** `main` at `daf3794`.
 **Supersedes:** `docs/handoff.md` on `modernization/phase-1-foundation`, which was last accurate on September 30. Every item it listed is resolved or restated below.
 **Next action:** Jeff adds the three Resend variables in Vercel (section 5), then records the demo.
 
@@ -14,7 +14,7 @@
 | Inquiry form | Working end to end. Captures and reports honestly when no channel is configured | `POST /api/forms/inquiry` returns 202 with `mode: "demo"` |
 | Email delivery | Code complete, not switched on. Needs three Vercel variables | `src/lib/forms/notify.ts`, verified against a mock server |
 | Salesforce | Adapter present, deliberately unmapped beyond standard Lead fields | `src/lib/integrations/salesforce.ts` |
-| Payload CMS | Not available. The database it points at no longer exists | Runtime log: `cannot connect to Postgres: (ENOTFOUND) tenant/user postgres.azgwspixvedmrgwcjysm not found` |
+| Payload CMS | Not available. The database it points at no longer exists. `/admin` returns 200 with an explanation rather than an error | Runtime log: `cannot connect to Postgres: (ENOTFOUND) tenant/user postgres.azgwspixvedmrgwcjysm not found`; `/admin` verified 200 on production |
 | Content source | Fixture content, not CMS content | `src/lib/content/fixture-repository.ts` is still the composition root |
 | Build | Clean. Lint, typecheck and production build all pass with no workaround | `npm run check` |
 
@@ -22,7 +22,9 @@
 
 The `/admin` HTTP 500 recorded in the September handoff has a definite cause. The Supabase project the deployment points at was deleted, not paused, and does not appear on the account. Payload cannot start without it.
 
-Decision taken: `/admin` now fails to a page that states the position plainly and sends the visitor back to the site. The public site never depended on the database and is unaffected.
+Decision taken: `/admin` now returns HTTP 200 with a page that states the position plainly and sends the visitor back to the site. The public site never depended on the database and is unaffected.
+
+Getting there took three attempts, which is worth recording. An error boundary was not enough, because Payload throws while the response is streaming, so the body rendered correctly but the status stayed 500. A name lookup was not enough either: a deleted Supabase project keeps resolving, because the pooler hostname is shared, and the tenant is rejected only once a connection is opened. The working answer is a short connection probe in `src/lib/database/reachable.ts`, cached for a minute, which decides before Payload starts.
 
 Standing up a replacement is a scoped piece of work, not a fix to this build. Note that the public pages read from fixture content, so a working database would make the editing interface reachable but would not yet make the visible site editable. Binding the content layer to the CMS is the larger task behind it.
 
@@ -88,7 +90,7 @@ Behaviour once configured: `/demo/inquiries` returns 404 by design, and the conf
 - Lint, typecheck and production build: clean, with no font workaround.
 - Seven public routes at 390px and 1280px: all 200, no horizontal overflow, no console errors.
 - Inquiry endpoint: valid submission returns 202 and is captured; a populated honeypot returns an identical-looking 202; an invalid submission returns 400 with no field names.
-- `/admin` against production: confirmed 500 and root cause read from the runtime log.
+- `/admin` against production: root cause read from the runtime log, fix deployed, and the route confirmed returning 200 with the correct page.
 - Not tested: real email delivery through Resend, any Salesforce path, Payload login, and anything requiring the database.
 
 ## 8. Handoff routine
