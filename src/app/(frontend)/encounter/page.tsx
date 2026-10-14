@@ -94,7 +94,7 @@ export default function EncounterLanding() {
               </p>
               <div className="actions">
                 <a className="button" href="#contact" data-cta="encounter-hero-ask">Ask Jeff a question</a>
-                <a className="button ghost" href="#learn" data-cta="encounter-hero-explore">Explore business at Kingswood</a>
+                <a className="button ghost" href="https://kingswood-business-demo.vercel.app" data-cta="encounter-hero-explore">Explore business at Kingswood</a>
               </div>
               <p className="hero-sub">A small Christian university. Real business learning. A future you can build.</p>
             </div>
