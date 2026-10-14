@@ -102,10 +102,12 @@ export default function EncounterLanding() {
               <div>
                 <dt>Available now</dt>
                 <dd>B.A. in Business Management</dd>
+                <dd>B.A. in Entrepreneurship</dd>
+                   <dd>B.A. in Sports & Rec Manageent</dd>
               </div>
               <div>
                 <dt>Built into the degree</dt>
-                <dd>A supervised internship</dd>
+                <dd>Real business experience</dd>
               </div>
               <div>
                 <dt>Where you would study</dt>
@@ -118,7 +120,7 @@ export default function EncounterLanding() {
         <section id="learn" className="section">
           <div className="container">
             <p className="eyebrow">WHAT YOU WILL LEARN</p>
-            <h2>Don&rsquo;t just study business. <em>Learn to do business.</em></h2>
+            <h2>Don&rsquo;t just study business. <em>Learn by doing business.</em></h2>
             <p className="lead-dark">
               Business is more than textbooks and exams. It is solving problems, understanding people,
               bringing ideas to life, and making things happen.
@@ -132,7 +134,7 @@ export default function EncounterLanding() {
               ))}
             </div>
             <p className="footnote-dark">
-              The B.A. in Business Management includes a supervised internship, so you finish with experience
+              The B.A. in Business Management includes live business labs, and business operations, so you finish with experience
               as well as a transcript.
             </p>
           </div>
@@ -141,20 +143,19 @@ export default function EncounterLanding() {
         <section id="pathway" className="section cream">
           <div className="container">
             <p className="eyebrow">A PATH FROM HIGH SCHOOL TO YOUR DEGREE</p>
-            <h2>You don&rsquo;t need your whole future <em>figured out in Grade 11.</em></h2>
+            <h2>You don&rsquo;t need your whole future <em>figured out in Grade 12.</em></h2>
             <p className="lead-dark">
-              Start building skills, take the next step, and keep moving forward. Each stage stands on its own.
+              Start building skills, take the next step, and keep moving forward.
             </p>
 
             <ol className="pathway-track">
               <li>
                 <p className="pathway-year">Year 1</p>
-                <h3>Leadership Essentials <Pill>In development</Pill></h3>
+                <h3>Elements <Pill>Leadership Essentials Certificate</Pill></h3>
                 <p className="pathway-line">Start exploring. Build confidence. Find out what you are good at.</p>
                 <p>
-                  An immersive, service-based year in Sussex. You work alongside a team in real campus
-                  operations, grow through discipleship and personal development, spend time outdoors, and
-                  learn to work with people who are not like you.
+                  An immersive year in Sussex. You work alongside a team in real campus
+                  operations, grow through discipleship, personal development, outdoor education, community-ministry, and teamwork.
                 </p>
               </li>
               <li>
@@ -162,8 +163,7 @@ export default function EncounterLanding() {
                 <h3>Associate degree <Pill>In development</Pill></h3>
                 <p className="pathway-line">Turn what you have learned into practical capability.</p>
                 <p>
-                  Build a stronger foundation in business, leadership and applied learning, and start putting
-                  it to work on real projects.
+                  Continue your studies toward an associate degree, developing a stronger foundation in business, leadership, and applied learning.
                 </p>
               </li>
               <li>
@@ -171,8 +171,8 @@ export default function EncounterLanding() {
                 <h3>Degree completion <Pill>In development</Pill></h3>
                 <p className="pathway-line">Build on your foundation. Prepare for what is next.</p>
                 <p>
-                  Go deeper into business, and develop the experience to pursue work in management,
-                  entrepreneurship, sport and recreation, and plenty besides.
+                  Continue into degree-level study, deepening your business knowledge and developing 
+                  the skills and experience to pursue opportunities in business, entrepreneurship, management, and other fields.
                 </p>
               </li>
             </ol>
@@ -181,7 +181,7 @@ export default function EncounterLanding() {
               <strong>Where this stands.</strong> This pathway is in development and is not yet open for
               admission. Credential names, timing and admission requirements are subject to academic
               approval. What is available today is the B.A. in Business Management. Ask Jeff and he will
-              tell you plainly where things are.
+              tell you more.
             </p>
 
             <p className="actions">
@@ -198,8 +198,8 @@ export default function EncounterLanding() {
             </div>
             <div>
               <p>
-                You should not have to choose between preparing for a career and growing in your faith.
-                Here, business study is a chance to take both seriously.
+                You don't need to choose between preparing for a career and growing in your faith.
+                At Kingswood, business education is an opportunity to explore both.
               </p>
               <p>
                 What does it mean to lead with integrity? To build something that serves people well? To
@@ -207,7 +207,7 @@ export default function EncounterLanding() {
               </p>
               <p>
                 Whether you end up leading a team, starting a business, working in sport and recreation, or
-                serving in a church, your education should help you think hard about the kind of leader you
+                leading a church, your education should help you think hard about the kind of leader you
                 want to become.
               </p>
             </div>
@@ -228,6 +228,12 @@ export default function EncounterLanding() {
                 You do not need to arrive with a business plan or a start-up idea. Curiosity and a
                 willingness to learn are enough to begin.
               </p>
+               <p>
+                You can explore your interests, develop your confidence, and learn alongside people who want their work to make a difference.
+              And you don't have to arrive with a business plan or an entrepreneurial idea.
+              You just need curiosity, a willingness to learn, and an interest in what you could do with your future.
+
+              </p>
             </div>
             <figure className="community-figure">
               <Image
@@ -237,7 +243,7 @@ export default function EncounterLanding() {
                 height={1200}
                 sizes="(min-width: 64rem) 36rem, 100vw"
               />
-              <figcaption>Out on the trail with Kingswood students. Class is not the only place you learn something.</figcaption>
+              <figcaption>Out on the trail with Elements students. Class is not the only place you learn something.</figcaption>
             </figure>
           </div>
         </section>
@@ -259,8 +265,8 @@ export default function EncounterLanding() {
 
         <section id="adults" className="section">
           <div className="container">
-            <p className="eyebrow">FOR PARENTS AND YOUTH PASTORS</p>
-            <h2>The questions <em>you are asking.</em></h2>
+            <p className="eyebrow">QUESTIONS?</p>
+            <h2>For parents <em>and youth pastors.</em></h2>
             <div className="degree-grid">
               <article className="degree-card">
                 <h3>What it costs</h3>
@@ -272,9 +278,9 @@ export default function EncounterLanding() {
                 <p className="source-note">{costSourceLine} No academic year is stated on the source page, and no owner has confirmed these figures.</p>
               </article>
               <article className="degree-card">
-                <h3>Send me the builders</h3>
+                <h3>Send the builders</h3>
                 <p>
-                  If you know a student who loves to build, sell or organize things, send them my way. I am
+                  If you know a student who loves to build, lead, or solve problems, send them our way. I am
                   happy to talk with them, with you, and with their family. No pressure to apply.
                 </p>
               </article>
@@ -337,7 +343,7 @@ export default function EncounterLanding() {
             </p>
             <p>
               He cares about two things in particular: helping business leaders run organizations with a
-              sense of mission, and helping ministry leaders pick up the business skills their work needs.
+              sense of mission, and helping ministry leaders learn the business skills their work needs.
             </p>
             <p className="closing-line">Your future is worth exploring. Let&rsquo;s start there.</p>
             <p className="actions">
