@@ -3,7 +3,9 @@
 import { useEffect } from "react";
 import { track } from "@/lib/analytics";
 
-const WATCHED = ["finder", "cost", "calling", "degrees", "pathway", "lab", "families", "faq", "contact"];
+const WATCHED = ["finder", "cost", "calling", "degrees", "pathway", "lab", "families", "faq", "contact",
+  // Encounter recruitment page.
+  "learn", "faith", "community", "careers", "adults", "about-jeff"];
 
 /** Tracks CTA clicks (elements with data-cta) and first view of key sections. No personal data. */
 export function Tracker() {
