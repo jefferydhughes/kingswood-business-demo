@@ -1,6 +1,8 @@
 .next/
 node_modules/
 tsconfig.tsbuildinfo
+.vercel/
+.cms-diagnostics/
 .env
 .env.*
 !.env.example

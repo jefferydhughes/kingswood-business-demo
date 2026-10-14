@@ -98,22 +98,14 @@ export default function EncounterLanding() {
               </div>
               <p className="hero-sub">A small Christian university. Real business learning. A future you can build.</p>
             </div>
-            <dl className="enc-proof">
-              <div>
-                <dt>Available now</dt>
-                <dd>B.A. in Business Management</dd>
-                <dd>B.A. in Entrepreneurship</dd>
-                   <dd>B.A. in Sports & Rec Manageent</dd>
-              </div>
-              <div>
-                <dt>Built into the degree</dt>
-                <dd>Real business experience</dd>
-              </div>
-              <div>
-                <dt>Where you would study</dt>
-                <dd>Sussex, New Brunswick</dd>
-              </div>
-            </dl>
+            <div className="enc-video">
+              <iframe
+                src="https://player.vimeo.com/video/1235866819?autoplay=1&loop=1&muted=1&autopause=0&title=0&byline=0&portrait=0&dnt=1"
+                title="Business at Kingswood University"
+                allow="autoplay; fullscreen; picture-in-picture"
+                referrerPolicy="strict-origin-when-cross-origin"
+              />
+            </div>
           </div>
         </section>
 
@@ -198,7 +190,7 @@ export default function EncounterLanding() {
             </div>
             <div>
               <p>
-                You don't need to choose between preparing for a career and growing in your faith.
+                You don&rsquo;t need to choose between preparing for a career and growing in your faith.
                 At Kingswood, business education is an opportunity to explore both.
               </p>
               <p>
@@ -230,7 +222,7 @@ export default function EncounterLanding() {
               </p>
                <p>
                 You can explore your interests, develop your confidence, and learn alongside people who want their work to make a difference.
-              And you don't have to arrive with a business plan or an entrepreneurial idea.
+              And you don&rsquo;t have to arrive with a business plan or an entrepreneurial idea.
               You just need curiosity, a willingness to learn, and an interest in what you could do with your future.
 
               </p>
