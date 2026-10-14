@@ -1,93 +1,121 @@
-# Kingswood digital enrollment
+# Kingswood University digital enrollment platform
 
-A recruitment-site demo for Kingswood University, built with Next.js App Router, TypeScript, React, and Zod. The original static business-school prototype remains as a design reference.
+A Next.js and TypeScript application for Kingswood University in Sussex, New Brunswick,
+built as a working demonstration of a redesigned public site and enrollment path. It is a
+demo for stakeholder review, not a production site.
 
-**Start each session with [the project handoff](docs/handoff.md).** It records progress, issues, validation, and next steps. Planning documents describe intended scope, not completed features.
+Read [docs/handoff.md](docs/handoff.md) first. It is the living record of what works, what
+does not, and what to do next.
 
-## Online demo (verified September 30, 2026)
+## Current state
 
-The deployed project is ahead of this checkout. Vercel serves `main` commit `a790843c412c8c82aaabdfc567d85e67eaed3103`; this workspace remains on the older `modernization/phase-1-foundation` branch at `ca3b040`. Do not infer overall project completion from this branch alone.
+| | |
+| --- | --- |
+| Public site | Working. Seven routes, mobile first, verified in a browser at phone and desktop width |
+| Inquiry form | Working. Captures submissions and states plainly when nothing was delivered |
+| Email delivery | Code complete, switched off. Needs three environment variables |
+| Salesforce | Adapter present, unmapped beyond standard Lead fields, awaiting institutional access |
+| Payload CMS | Connected. `/admin` serves the Payload login and is waiting for its first admin user to be created |
+| Content | Served from fixtures, not from the CMS |
 
-- [Homepage](https://kingswood-business-demo.vercel.app/): business landing page, HTTP 200.
-- [Academics](https://kingswood-business-demo.vercel.app/academics), [Admissions](https://kingswood-business-demo.vercel.app/admissions), [Student life](https://kingswood-business-demo.vercel.app/student-life), [About](https://kingswood-business-demo.vercel.app/about): all HTTP 200. Foundation pages link onward to the existing university website.
-- [Main demo admin](https://kingswood-business-demo.vercel.app/admin/): Payload exists, but returned HTTP 500 during this check.
-- [CMS preview login](https://kingswood-business-demo-ldftla59z-jeffs-projects-3a93e6bd.vercel.app/admin/login): HTTP 200; authenticated editing was not tested. Vercel may require sign-in for preview access.
+## Running it
 
-The homepage navigation links to sections within the business page, so it does not expose the four university subpages. No separate university-wide homepage was found. See the handoff for the deployment and CMS history.
+Node 22. `npm install`, then:
 
-## Current checkout implementation
-
-- Business recruitment landing page at `/`, responsive navigation, program cards, graduate comparison, and a client-side program finder.
-- JSON inquiry endpoint at `POST /api/forms/inquiry`, with validation and a server-only Salesforce Lead adapter. No inquiry form UI yet.
-- Basic metadata, security headers, and GitHub Actions for lint, TypeScript, and production build.
-- Vercel configuration targets **Next.js**, not the static prototype.
-
-In this older checkout, Payload CMS, database persistence, staff authentication, analytics, search, complete program/admissions pages, and Ask Kingswood are absent. Later deployed work includes Payload CMS and four university foundation pages; these must not be rebuilt based on this checkout inventory. Salesforce access is not available yet. The adapter is scaffolding for future integration, not a connected demo feature. Production integration requirements are deferred and do not block demo work; see the handoff.
-
-## Local setup
-
-Use Node.js 22 to match `.nvmrc` and CI; `package.json` permits 22 or newer.
-
-```sh
-npm install --ignore-scripts
-npm run dev
+```
+npm run dev        # http://localhost:3000
+npm run check      # lint, typecheck, production build
 ```
 
-Open `http://localhost:3000`. On Windows PowerShell, use `npm.cmd` if execution policy blocks `npm.ps1`.
+No environment variables are required to run the public site. Copy `.env.example` to
+`.env.local` to configure the optional pieces.
 
-No credentials or Salesforce access are needed to run the demo. Leave Salesforce credentials unset. When access becomes available for future integration work, copy `.env.example` to `.env.local` only if the destination does not already exist, then set sandbox values. Never overwrite an existing environment file or commit secrets.
+## Routes
 
-There is no committed lockfile, so use `npm install`, not `npm ci`. Reproducible installation is a tracked follow-up.
-
-## Commands
-
-| Command | Purpose |
+| Route | Purpose |
 | --- | --- |
-| `npm run dev` | Local development server |
-| `npm run lint` | ESLint |
-| `npm run typecheck` | TypeScript without emitting files |
-| `npm run build` | Production build |
-| `npm run check` | Lint, typecheck, then build |
-| `npm start` | Serve an existing production build |
+| `/` | School of Business landing page, the main design path |
+| `/academics`, `/admissions`, `/student-life`, `/about` | University-level pages. Structure, not migrated content |
+| `/encounter` | QR destination for the November student weekend. Excluded from search engines |
+| `/demo/inquiries` | Shows what the inquiry form captured. Exists only while no real delivery channel is configured, so it can never display a production lead |
+| `/admin` | Payload CMS. Currently explains that it has no database |
 
-The build uses Google fonts through `next/font/google` and may require network access. No automated unit, integration, or browser test suite is configured. See the handoff for the latest observed validation result; CI configuration alone is not evidence of a passing run.
+## How an inquiry is handled
 
-## Configuration
+`POST /api/forms/inquiry` validates the submission, then delivers it through every
+configured channel and returns 202 if any one succeeds.
 
-Use [.env.example](.env.example) as the inventory and [Salesforce mapping](docs/integrations/salesforce-mapping.md) for requirements.
+When no channel is configured, the submission is captured in memory, the response carries
+`mode: "demo"`, and the confirmation tells the visitor that nothing was delivered to anyone.
+Nothing in the interface claims a delivery that did not happen. There is no durable store
+yet, which is the first item in the handoff's remaining work.
 
-| Variables | Current use |
+## Environment
+
+| Variable | Effect |
 | --- | --- |
-| `SALESFORCE_CLIENT_ID`, `SALESFORCE_CLIENT_SECRET` | Enable the server-side adapter |
-| `SALESFORCE_LOGIN_URL` | Set explicitly for sandbox use; code defaults to production login when omitted |
-| `SALESFORCE_API_VERSION`, `SALESFORCE_EXTERNAL_ID_FIELD`, `SALESFORCE_DEFAULT_COMPANY` | API and Lead mapping configuration |
-| `SALESFORCE_CAMPAIGN_ID` | Read by configuration; campaign enrollment is not wired into the inquiry route |
-| `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_ASK_KINGSWOOD_ENABLED` | Placeholders, not consumed by application code |
-| `DATABASE_URL`, `PAYLOAD_SECRET`, `BLOB_READ_WRITE_TOKEN` | Reserved for future CMS implementation |
+| `NEXT_PUBLIC_REVIEW_MODE` | Defaults to on. Shows the approval banner and the Proposed, Confirmed, Exploratory and Hypothesis labels. Turning it off hides the disclosure without removing the claims, so leave it on until programs are approved |
+| `NEXT_PUBLIC_SHOW_INTEREST_LIST` | Shows the "programs in development" line on `/encounter`. Requires the president's approved wording |
+| `RESEND_API_KEY`, `INQUIRY_NOTIFY_TO`, `INQUIRY_FROM` | All three switch on email delivery of inquiries. See the handoff for setup |
+| `SALESFORCE_*` | CRM delivery. Requires a dedicated API-only integration user |
+| `DATABASE_URL`, `PAYLOAD_SECRET`, `BLOB_READ_WRITE_TOKEN` | Payload CMS. Without the first two, CMS routes return 404 |
 
-The inquiry endpoint returns `415` for unsupported content type, `400` for invalid input, and `503` when unconfigured. A successful CRM write returns `202`; no durable local queue exists. Live integration testing is deferred until Salesforce access is available. No simulated submission mode is currently implemented.
+## Content guardrails
 
-## Repository map
+These are rules about what the site is allowed to say, and they are enforced in code and in
+review, not by convention alone.
 
-| Path | Responsibility |
-| --- | --- |
-| `src/app/` | Active homepage, layout, styles, inquiry API |
-| `src/components/` | Navigation and program finder |
-| `src/lib/forms/` | Inquiry validation |
-| `src/lib/integrations/` | CRM contracts and Salesforce adapter |
-| `index.html`, `styles.css`, `app.js`, `assets/` | Static prototype; not the active Next.js route |
-| `.github/workflows/ci.yml` | Foundation checks |
-| `docs/handoff.md` | Maintained progress and next-session entry point |
+- The site markets the currently listed B.A. in Business Management and the online MBA. The
+  three new bachelor's degrees are shown as proposed and are not approved.
+- Nothing claims or implies accreditation. ACBSP was chosen; a Fall 2027 launch cannot use
+  the word accredited.
+- Tuition, requirements, deadlines, accreditation, outcomes and program status each require
+  an owner, a source and a review date. `src/content/facts.ts` carries that shape. A claim
+  without provenance is removed rather than published, as the accreditation and outcomes
+  cards on `/about` were.
+- Master of Organizational Leadership claims require institutional confirmation.
+- Scraped or migrated content enters draft status and is never auto-published.
+- AI services may answer only from approved sources and may never promise admission, aid,
+  transfer credit, immigration, licensure, calling or employment outcomes.
+- The brand palette in [docs/brand-guide.md](docs/brand-guide.md) is the whole palette, and
+  text and controls meet WCAG AA.
 
-## Planning and content rules
+## Repository layout
 
-- [Master plan](docs/00-master-plan.md): proposed platform and approval gate.
-- [Roadmap](docs/roadmap.md): phases and acceptance gates.
-- [Schema](docs/schema.md): intended content/data model.
-- [Authentication and privacy](docs/auth.md): roles and data boundaries.
-- [Integrations](docs/integrations.md) and [Salesforce mapping](docs/integrations/salesforce-mapping.md): contracts and discovery.
-- [Compass AI strategy](docs/ai-integrations.md): future AI scope.
+```
+src/app/(frontend)      public routes, the inquiry API, global styles, self-hosted fonts
+src/app/(payload)       Payload CMS admin and API
+src/components          shared UI
+src/content             fixture content and sourced facts
+src/lib                 forms, integrations, analytics, database
+src/collections         Payload collections
+docs                    handoff, brand guide, architecture and planning documents
+```
 
-Keep the current B.A. in Business Management naming. Master of Organizational Leadership claims require institutional confirmation before publication. Critical program, tuition, deadline, accreditation, and outcome facts need an owner, source, and review date. Migrated content enters draft status. Future AI must use approved sources and must not promise admissions, aid, transfer, immigration, licensure, or employment outcomes.
+`index.html`, `styles.css` and `app.js` at the repository root are the original static
+prototype, kept as a visual reference and excluded from linting. They are also preserved on
+the `v1` branch, so these copies can be removed once that is confirmed.
 
-The reviewed local branch is `modernization/phase-1-foundation`, which is behind the deployed `main`; reconcile branches before implementation. Update the handoff at the end of every session, including incomplete work and validation failures.
+## Governing documents
+
+Read before changing architecture, content models, authentication, integrations, AI
+behaviour or delivery scope.
+
+- [Handoff](docs/handoff.md), the current state and next actions
+- [Master plan](docs/00-master-plan.md)
+- [Content and data schema](docs/schema.md)
+- [Authentication, authorization and privacy](docs/auth.md)
+- [Integration architecture](docs/integrations.md)
+- [Delivery roadmap](docs/roadmap.md)
+- [Kingswood Compass AI strategy](docs/ai-integrations.md)
+- [Brand guide](docs/brand-guide.md)
+- [WordPress content migration playbook](docs/wordpress-migration.md)
+
+## Branch strategy
+
+`main` is the production source. Work happens on one short-lived feature branch per package,
+merged through review and deleted afterwards. Long-lived design, migration and environment
+branches are not maintained.
+
+`v1` is the one deliberate exception: it preserves the original static site and is kept
+indefinitely. The handoff lists which other branches are merged and safe to delete.

@@ -30,7 +30,16 @@ function configFromEnvironment(): SalesforceConfig | null {
   };
 }
 
-async function getToken(config: SalesforceConfig): Promise<TokenResponse> {
+/** Every upstream call is bounded, so a hung Salesforce cannot hold a request open. */
+const UPSTREAM_TIMEOUT_MS = 8000;
+
+/**
+ * Returns the token, or a classified failure. Throwing here previously made an
+ * expired secret indistinguishable from an outage, so a permanent
+ * misconfiguration was reported to visitors as a temporary one for as long as
+ * it lasted.
+ */
+async function getToken(config: SalesforceConfig): Promise<{ ok: true; token: TokenResponse } | { ok: false; result: AdapterResult }> {
   const body = new URLSearchParams({
     grant_type: "client_credentials",
     client_id: config.clientId,
@@ -41,9 +50,23 @@ async function getToken(config: SalesforceConfig): Promise<TokenResponse> {
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body,
     cache: "no-store",
+    signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
   });
-  if (!response.ok) throw new Error(`Salesforce token request failed: ${response.status}`);
-  return response.json() as Promise<TokenResponse>;
+  if (!response.ok) {
+    const permanent = response.status === 400 || response.status === 401 || response.status === 403;
+    return {
+      ok: false,
+      result: {
+        ok: false,
+        kind: permanent ? "permanent" : "retryable",
+        code: permanent ? "salesforce_auth_failed" : `salesforce_token_http_${response.status}`,
+        safeMessage: permanent
+          ? "Salesforce rejected these integration credentials."
+          : "Salesforce is temporarily unavailable.",
+      },
+    };
+  }
+  return { ok: true, token: (await response.json()) as TokenResponse };
 }
 
 function leadPayload(input: ProspectInput, config: SalesforceConfig): Record<string, string | boolean> {
@@ -77,10 +100,14 @@ function classifyFailure(status: number): AdapterResult {
 export class SalesforceCrmAdapter implements CrmAdapter {
   constructor(private readonly config: SalesforceConfig) {}
 
-  async upsertProspect(input: ProspectInput, _context: { idempotencyKey: string }): Promise<AdapterResult> {
+  async upsertProspect(input: ProspectInput, context: { idempotencyKey: string }): Promise<AdapterResult> {
     try {
-      const token = await getToken(this.config);
-      const key = encodeURIComponent(input.submissionId);
+      const auth = await getToken(this.config);
+      if (!auth.ok) return auth.result;
+      const token = auth.token;
+      // The caller's key is what makes a repeated submission resolve to one
+      // Lead; falling back to the submission id keeps older callers working.
+      const key = encodeURIComponent(context.idempotencyKey || input.submissionId);
       const endpoint = `${token.instance_url}/services/data/${this.config.apiVersion}/sobjects/Lead/${this.config.externalIdField}/${key}`;
       const response = await fetch(endpoint, {
         method: "PATCH",
@@ -90,17 +117,21 @@ export class SalesforceCrmAdapter implements CrmAdapter {
         },
         body: JSON.stringify(leadPayload(input, this.config)),
         cache: "no-store",
+        signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
       });
 
       if (!response.ok) return classifyFailure(response.status);
       if (response.status === 204) {
-        return { ok: true, externalId: input.submissionId, receivedAt: new Date().toISOString() };
+        // An update returns no body, so the Salesforce id is not available
+        // here. Reporting the submission id instead would hand callers a value
+        // that is not a Lead id, which is worse than reporting none.
+        return { ok: true, externalId: null, receivedAt: new Date().toISOString() };
       }
 
       const result = (await response.json()) as UpsertResponse;
       return {
         ok: true,
-        externalId: result.id ?? input.submissionId,
+        externalId: result.id ?? null,
         receivedAt: new Date().toISOString(),
       };
     } catch {
@@ -120,7 +151,9 @@ export class SalesforceCrmAdapter implements CrmAdapter {
     submissionId: string;
   }): Promise<AdapterResult> {
     try {
-      const token = await getToken(this.config);
+      const auth = await getToken(this.config);
+      if (!auth.ok) return auth.result;
+      const token = auth.token;
       const response = await fetch(`${token.instance_url}/services/data/${this.config.apiVersion}/sobjects/CampaignMember`, {
         method: "POST",
         headers: {
@@ -133,10 +166,11 @@ export class SalesforceCrmAdapter implements CrmAdapter {
           Status: input.status ?? "Responded",
         }),
         cache: "no-store",
+        signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
       });
       if (!response.ok) return classifyFailure(response.status);
       const result = (await response.json()) as UpsertResponse;
-      return { ok: true, externalId: result.id ?? input.submissionId, receivedAt: new Date().toISOString() };
+      return { ok: true, externalId: result.id ?? null, receivedAt: new Date().toISOString() };
     } catch {
       return { ok: false, kind: "retryable", code: "salesforce_campaign_error", safeMessage: "Campaign attribution is temporarily unavailable." };
     }
