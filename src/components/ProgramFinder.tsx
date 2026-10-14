@@ -133,7 +133,7 @@ export function ProgramFinder({ reviewMode = true }: { reviewMode?: boolean }) {
     <section id="finder" className="finder" aria-labelledby={headingId}>
       <div>
         <p className="eyebrow light">FIND YOUR PATH</p>
-        <h2 id={headingId}>Four taps. One clear next step.</h2>
+        <h2 id={headingId}>Four paths. One clear next step.</h2>
         <p>Guidance, not an admissions decision. An enrolment counsellor can talk through any option with you.</p>
         {!done && <p className="finder-progress" aria-live="polite">Question {index + 1} of {steps.length}</p>}
       </div>
