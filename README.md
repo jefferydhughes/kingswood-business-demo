@@ -59,6 +59,9 @@ yet, which is the first item in the handoff's remaining work.
 | `RESEND_API_KEY`, `INQUIRY_NOTIFY_TO`, `INQUIRY_FROM` | All three switch on email delivery of inquiries. See the handoff for setup |
 | `SALESFORCE_*` | CRM delivery. Requires a dedicated API-only integration user |
 | `DATABASE_URL`, `PAYLOAD_SECRET`, `BLOB_READ_WRITE_TOKEN` | Payload CMS. Without the first two, CMS routes return 404 |
+| `CMS_CONTENT` | `on` serves the four university pages from Payload, with the fixtures as the fallback for any page not in the CMS and for a CMS failure. Anything else serves fixtures only |
+| `PREVIEW_SECRET` | Required for live preview and draft previews. Without it, `/api/preview` returns 404 and unpublished work stays unreachable |
+| `ADMIN_BOOTSTRAP_TOKEN` | Set only to recover CMS access, then remove it. While set, one request with the token in an `x-bootstrap-token` header creates or resets an administrator |
 
 ## Content guardrails
 

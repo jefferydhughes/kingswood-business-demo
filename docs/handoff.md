@@ -1,10 +1,11 @@
 # Project handoff
 
-**Updated:** October 13, 2026 (America/Halifax)
+**Updated:** October 23, 2026 (America/Halifax)
 **Scope:** Demo build for stakeholder review. Salesforce access is not available.
-**Branch:** `main`. Deployed and verified at `de87c22`.
+**Branch:** `main`. Deployed and verified at `de87c22`; CMS work pushed through `27a3a94`.
 **Deployment:** https://kingswood-business-demo.vercel.app, Vercel project `prj_tzKBiRauI2e139Ggn2Rv1QM0ODqU`.
-**Next action:** Jeff adds the three Resend variables in Vercel (section 6), then records the demo.
+**Next action:** Jeff sets `CMS_CONTENT=on` and `PREVIEW_SECRET` in Vercel, applies the pending
+migration, then creates Andrea's Publisher account (section 5).
 
 This is the single living handoff. It replaces the September 30 copy that lived on
 `modernization/phase-1-foundation` and was never merged to `main`, and it absorbs the
@@ -19,8 +20,8 @@ adding a second document that contradicts it.
 | Inquiry form | Working end to end. Captures and reports honestly when no channel is configured | `POST /api/forms/inquiry` returns 202 with `mode: "demo"` |
 | Email delivery | Code complete, not switched on. Needs three Vercel variables | `src/lib/forms/notify.ts`, verified against a mock server |
 | Salesforce | Adapter present, deliberately unmapped beyond standard Lead fields | `src/lib/integrations/salesforce.ts` |
-| Payload CMS | Connected and running. `/admin` serves the Payload login and is asking to create the first user | `/admin/login` verified 200, title "Login - Payload", create-first-user prompt present |
-| Content source | Fixture content, not CMS content | `src/lib/content/fixture-repository.ts` is still the composition root |
+| Payload CMS | Connected and running, with live preview, drafts and version history. Editing aids added for non-technical editors | Browser pass over dashboard, navigation and a page document in light and dark themes |
+| Content source | CMS, behind `CMS_CONTENT=on`, with the fixture as the fallback for any page not yet in the CMS and for a CMS failure | Four pages rendered byte-identical from both sources |
 | Build | Clean. Lint, typecheck and production build all pass with no workaround | `npm run check` |
 
 ## 2. The CMS database was unreachable
@@ -83,7 +84,7 @@ The five ordered items from the September handoff:
 
 | # | Item | State |
 | --- | --- | --- |
-| 1 | Reconcile the working branch with deployed main | Done. `main` is the single line of work; merged feature branches are listed for deletion in section 8 |
+| 1 | Reconcile the working branch with deployed main | Done. `main` is the single line of work; merged feature branches are listed for deletion in section 9 |
 | 2 | Make the existing demo pages discoverable | Done. The four university routes are in the site header, the landing page footer and the mobile action bar |
 | 3 | Diagnose the main admin HTTP 500 | Done. Root cause established and the route fixed. See section 2 |
 | 4 | Confirm the CMS editing path | Partly done. Payload starts and serves its login. Still to do: create the first admin user and confirm a working session |
@@ -131,7 +132,50 @@ labels and status pills were enlarged so they survive video compression.
 `src/app/(frontend)/fonts/`. The build previously fetched them from Google at build time,
 which made every deployment depend on an external service.
 
-## 5. What remains
+## 5. The editing experience
+
+Andrea wants to see how the site runs, see the back end, and change things. The CMS now
+supports that without a developer.
+
+**Where to sign in.** https://kingswood-business-demo.vercel.app/admin. Payload is part of
+this application, not an outside service, so there is no payloadcms.com account to create
+and nothing to sign up for. Accounts live in Kingswood's own Supabase database and are
+created from inside the admin, under People with access.
+
+**What an editor sees.**
+
+- **Start here**, at the top of the dashboard: the four pages by name with their publication
+  state, the site-wide settings, and links out to the live site.
+- **Site pages** in the navigation: the same four pages, so nobody has to know they are
+  stored in a collection called Pages.
+- **A page switcher** above the save controls on any page, for moving between pages without
+  returning to a list.
+- **Live preview**, the eye icon beside the publish button: the real page beside the form,
+  updating as fields change, at phone, tablet and desktop widths.
+- **Draft and publish.** Every change saves as a draft first and is invisible to visitors
+  until published. Version history is kept, so an earlier version can be restored.
+
+**What an editor can change.** Every word on the four university pages: headlines,
+introductions, cards, calls to action, page titles and descriptions. Also the header
+navigation, the footer and site settings. Images upload to the Media library once the Vercel
+Blob store exists and `BLOB_READ_WRITE_TOKEN` is set.
+
+**What an editor cannot change, by design.** Page layout, colours, type and spacing. Those
+come from the brand guide, and the contrast work behind them is what keeps the site
+accessible. The reference editor Jeff shared allows per-element styling; adopting that here
+would reintroduce the red-on-navy contrast failure fixed in September. Layout changes stay a
+development task.
+
+**Roles.** Editor drafts but cannot publish. Publisher drafts and publishes. Administrator
+also manages accounts. Andrea's account should be Publisher.
+
+**If nobody can sign in.** Payload has no password reset until the email key is in place
+(section 7), so `/api/admin-bootstrap` exists as the way back in. It answers 404 unless
+`ADMIN_BOOTSTRAP_TOKEN` is set in Vercel, which means it does not exist in normal operation.
+Set the variable, send one request with the token in an `x-bootstrap-token` header, then
+delete the variable. Leaving it set leaves a standing way into the CMS.
+
+## 6. What remains
 
 Ranked. Nothing here blocks the demo.
 
@@ -141,13 +185,13 @@ Ranked. Nothing here blocks the demo.
 | 2 | Shared rate-limit store | The current limiter counts within one serverless instance. Vercel KV or Upstash makes it cluster wide | Unassigned |
 | 3 | Published privacy notice | `consentPolicyVersion` is `demo-2026-10`, a version string with no policy behind it. Required before any marketing send, and before the Encounter form collects from minors | Kingswood, with counsel |
 | 4 | Owner for the cost figures | Tuition figures carry a source and a retrieval date but no owner. README.md requires one | Finance or Admissions |
-| 5 | Create the first admin user, then bind content to the CMS | Payload is connected and waiting at create-first-user. After that, the real work is making the visible site CMS driven rather than fixture driven | Jeff for the account, then unassigned |
+| 5 | Switch the CMS on in production | The binding is built and verified locally. Production needs `CMS_CONTENT=on`, `PREVIEW_SECRET`, the pending migration applied, and the four pages seeded | Jeff for the variables, then unassigned |
 | 6 | Salesforce field mapping | Consent, attribution and academic interest are collected but not mapped, by deliberate choice, until Kingswood exports its Salesforce schema | Deferred until access |
 | 7 | Campaign membership | `addToCampaign` has no caller and `campaignId` is read but unused | Deferred until access |
 | 8 | Logo asset at higher resolution | Served at its native 278x70 for a 39px render, so the wordmark is soft on high-density screens and on video | Unassigned |
 | 9 | Decide the fate of the root static prototype | `index.html`, `styles.css` and `app.js` sit beside the Next application. They are preserved on the `v1` branch, so the root copies can go | Jeff |
 
-## 6. Switching on email delivery
+## 7. Switching on email delivery
 
 Three variables in the Vercel project, then redeploy. The code is already in place.
 
@@ -172,7 +216,7 @@ Kingswood IT request.
 Behaviour once configured: `/demo/inquiries` returns 404 by design, and the confirmation
 message drops the demonstration notice. Until configured, the demo capture continues to work.
 
-## 7. Open flags
+## 8. Open flags
 
 - **Minors' data.** The Encounter form collects name, email, grade, church and a guardian
   email from students as young as Grade 10. There is no retention period, no deletion path
@@ -195,7 +239,7 @@ message drops the demonstration notice. Until configured, the demo capture conti
   Next supports and plain Node ESM does not. If `payload migrate` is ever run outside Next,
   that import is where it breaks.
 
-## 8. Branch state
+## 9. Branch state
 
 `main` is the only branch that matters. These are fully merged and can be deleted, with
 their tips recorded here in case anyone wants them back:
@@ -218,7 +262,7 @@ These seven hold content that exists nowhere on `main` and were left alone:
 reading before deciding: `modernization/phase-1-foundation` holds the September handoff this
 file replaces, and `hotfix/cms-production-guard` may bear on the database problem.
 
-## 9. Verification performed
+## 10. Verification performed
 
 - Lint, typecheck and production build: clean, with no font workaround.
 - Seven public routes at 390px and 1280px: all 200, no horizontal overflow, no console errors.
@@ -226,10 +270,18 @@ file replaces, and `hotfix/cms-production-guard` may bear on the database proble
   returns an identical-looking 202; an invalid submission returns 400 with no field names.
 - `/admin` on production: root cause read from the runtime log, fix deployed, route confirmed
   returning 200 with the correct page.
-- Not tested: real email delivery through Resend, any Salesforce path, Payload login, and
-  anything requiring the database.
+- CMS binding: the four pages rendered from the CMS and from the fixtures and compared
+  character for character, identical in both.
+- Preview route: no secret 404, a traversal slug 400, a valid request redirects to the page.
+- Recovery route: a wrong token 404, a short password 400, a valid request creates a working
+  administrator.
+- Editing aids: dashboard panel, navigation list and page switcher rendered in a browser for
+  a signed-in administrator in light and dark themes; selecting another page in the switcher
+  opened that document.
+- Not tested: real email delivery through Resend, any Salesforce path, image upload to Vercel
+  Blob, and the migration against the production database.
 
-## 10. Handoff routine
+## 11. Handoff routine
 
 At session start, read this document, then `git status --short`, the current branch and
 recent history. Compare working code, `origin/main` and the deployed commit rather than
@@ -239,7 +291,28 @@ At session end, update this file rather than adding a second one. Record what wa
 exact checks and their results, blockers with owners, one exact next action, and the verified
 deployment commit. Keep secrets and prospect data out of this file.
 
-## 11. Session log
+## 12. Session log
+
+### 2026-10-23
+
+- Reshaped the Pages collection to mirror the page data exactly, so the CMS adapter is a
+  mapping rather than a translation, and generated the migration for it against a throwaway
+  local Postgres rather than asking for the production connection string.
+- Bound the four university pages to the CMS behind `CMS_CONTENT=on`, with the fixture kept
+  as the fallback both for a page not yet in the CMS and for a CMS failure, so a paused
+  database cannot take the admissions pages down. Verified byte-identical output.
+- Added live preview, draft previews through `/api/preview`, and the token-gated recovery
+  route described in section 5.
+- Added the editing aids an executive reviewer needs: the dashboard panel, the named page
+  list in the navigation, and the page switcher on a document.
+- Corrected a misunderstanding worth recording: Payload is self-hosted inside this
+  application. There is no payloadcms.com account, nothing to sign up for, and no reason to
+  move authentication to Supabase Auth, which would discard the role model and the admin's
+  own login.
+- An earlier conclusion that the dashboard panel was not rendering came from reading a
+  streamed response with curl, which returns the shell before the content. Confirmed in a
+  browser instead. The lesson is the same one recorded in section 2: a tool that cannot see
+  a thing is not evidence that the thing is absent.
 
 ### 2026-10-13
 
