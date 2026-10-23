@@ -61,6 +61,24 @@ export const Pages: CollectionConfig = {
     useAsTitle: "title",
     defaultColumns: ["title", "slug", "_status", "updatedAt"],
     description: "The four university pages. Each one has a route that renders it.",
+    /**
+     * Opens the real page beside the form. The preview route requires
+     * PREVIEW_SECRET, so a draft stays unreachable without it.
+     */
+    livePreview: {
+      breakpoints: [
+        { label: "Phone", name: "phone", width: 390, height: 844 },
+        { label: "Tablet", name: "tablet", width: 768, height: 1024 },
+        { label: "Desktop", name: "desktop", width: 1440, height: 900 },
+      ],
+      url: ({ data }) => {
+        const slug = typeof data?.slug === "string" ? data.slug : "";
+        const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+        const secret = process.env.PREVIEW_SECRET ?? "";
+        if (!slug || !secret) return base;
+        return `${base}/api/preview?secret=${encodeURIComponent(secret)}&slug=${encodeURIComponent(slug)}`;
+      },
+    },
   },
   access: {
     create: editorsForDraftsPublishersForPublishing,

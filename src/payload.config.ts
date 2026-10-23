@@ -1,6 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { resendAdapter } from "@payloadcms/email-resend";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { vercelBlobStorage } from "@payloadcms/storage-vercel-blob";
@@ -42,6 +43,21 @@ export default buildConfig({
     pool: databasePoolOptions(process.env.DATABASE_URL ?? ""),
     push: false,
   }),
+  /**
+   * Without an email adapter Payload writes mail to the console, which means
+   * the password reset link never reaches anyone and a forgotten admin password
+   * locks the CMS permanently. Configured only when a key exists, so local and
+   * preview builds stay console-only.
+   */
+  ...(process.env.RESEND_API_KEY && process.env.INQUIRY_FROM
+    ? {
+        email: resendAdapter({
+          apiKey: process.env.RESEND_API_KEY,
+          defaultFromAddress: process.env.INQUIRY_FROM.replace(/^.*<|>.*$/g, ""),
+          defaultFromName: "Kingswood University",
+        }),
+      }
+    : {}),
   editor: lexicalEditor(),
   // Nothing in this application queries GraphQL. Leaving it enabled would
   // publish a second, unguarded surface over every collection.
