@@ -1,1 +1,134 @@
-/* Kingswood CMS customizations belong here. Keep the Payload defaults intact. */
+/*
+ * Kingswood CMS customizations. Payload's own variables are used throughout so
+ * these additions follow the admin theme, including dark mode, rather than
+ * hard-coding colours that would break when the theme changes.
+ */
+
+/* Site pages list in the navigation */
+.kw-nav {
+  margin-bottom: calc(var(--base) * 0.75);
+  padding-bottom: calc(var(--base) * 0.75);
+  border-bottom: 1px solid var(--theme-elevation-100);
+}
+
+.kw-nav__heading {
+  margin: 0 0 calc(var(--base) * 0.3);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--theme-elevation-500);
+}
+
+.kw-nav__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kw-nav__link {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: calc(var(--base) * 0.5);
+  padding: calc(var(--base) * 0.25) 0;
+  color: var(--theme-elevation-800);
+  text-decoration: none;
+}
+
+.kw-nav__link:hover .kw-nav__name,
+.kw-nav__link:focus-visible .kw-nav__name {
+  text-decoration: underline;
+}
+
+.kw-nav__status {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  color: var(--theme-elevation-500);
+}
+
+/* Page switcher on a page document */
+.kw-switcher {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: calc(var(--base) * 0.5);
+  margin-right: auto;
+}
+
+.kw-switcher__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--theme-elevation-600);
+}
+
+.kw-switcher__select {
+  max-width: 22rem;
+  padding: calc(var(--base) * 0.3) calc(var(--base) * 0.5);
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: var(--style-radius-s);
+  background: var(--theme-input-bg);
+  color: var(--theme-elevation-800);
+  font-size: 0.85rem;
+}
+
+.kw-switcher__live {
+  font-size: 0.8rem;
+  color: var(--theme-text);
+}
+
+/* Start here panel on the dashboard */
+.kw-start {
+  margin-bottom: calc(var(--base) * 1.5);
+  padding: var(--base);
+  border: 1px solid var(--theme-elevation-100);
+  border-radius: var(--style-radius-m);
+  background: var(--theme-elevation-50);
+}
+
+.kw-start__heading {
+  margin: 0 0 var(--base);
+  font-size: 1.1rem;
+}
+
+.kw-start__grid {
+  display: grid;
+  gap: var(--base);
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.kw-start__subheading {
+  margin: 0 0 calc(var(--base) * 0.4);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--theme-elevation-500);
+}
+
+.kw-start__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: calc(var(--base) * 0.3);
+}
+
+.kw-start__list li {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: calc(var(--base) * 0.4);
+}
+
+.kw-start__meta {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  color: var(--theme-elevation-500);
+}
+
+.kw-start__note {
+  margin: var(--base) 0 0;
+  font-size: 0.8rem;
+  color: var(--theme-elevation-600);
+}

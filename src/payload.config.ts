@@ -34,6 +34,16 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
+    /**
+     * The default navigation and dashboard are organised by collection. An
+     * editor arrives wanting a page, not a collection, so both gain a list of
+     * the site's pages by name. Added alongside the defaults, not replacing
+     * them, so nothing in the CMS becomes unreachable.
+     */
+    components: {
+      beforeNavLinks: ["/components/admin/SitePagesNav#SitePagesNav"],
+      beforeDashboard: ["/components/admin/DashboardLinks#DashboardLinks"],
+    },
   },
   collections: [Users, Media, Pages, Programs, Redirects],
   globals: [Header, Footer, SiteSettings],

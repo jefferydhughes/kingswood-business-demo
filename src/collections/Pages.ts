@@ -6,6 +6,7 @@ import {
   publishedOrAuthenticated,
   publishers,
 } from "@/access/cms";
+import { sitePageOption, sitePages } from "@/lib/content/site-pages";
 
 /**
  * Institutional pages.
@@ -61,6 +62,11 @@ export const Pages: CollectionConfig = {
     useAsTitle: "title",
     defaultColumns: ["title", "slug", "_status", "updatedAt"],
     description: "The four university pages. Each one has a route that renders it.",
+    components: {
+      edit: {
+        beforeDocumentControls: ["/components/admin/PageSwitcher#PageSwitcher"],
+      },
+    },
     /**
      * Opens the real page beside the form. The preview route requires
      * PREVIEW_SECRET, so a draft stays unreachable without it.
@@ -99,12 +105,10 @@ export const Pages: CollectionConfig = {
       unique: true,
       index: true,
       admin: { description: "Which page this is. Each option maps to one route." },
-      options: [
-        { label: "About (/about)", value: "about" },
-        { label: "Academics (/academics)", value: "academics" },
-        { label: "Admissions (/admissions)", value: "admissions" },
-        { label: "Student life (/student-life)", value: "student-life" },
-      ],
+      options: sitePages.map((page) => ({
+        label: sitePageOption(page),
+        value: page.slug,
+      })),
     },
     {
       type: "row",
