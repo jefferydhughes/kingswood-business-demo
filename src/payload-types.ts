@@ -206,33 +206,119 @@ export interface Media {
   };
 }
 /**
+ * The four university pages. Each one has a route that renders it.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
 export interface Page {
   id: number;
+  /**
+   * Which page this is. Each option maps to one route.
+   */
+  slug: 'about' | 'academics' | 'admissions' | 'student-life';
+  /**
+   * Small label above the headline.
+   */
+  eyebrow: string;
   title: string;
-  slug: string;
-  summary: string;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
+  /**
+   * The paragraph under the headline.
+   */
+  introduction: string;
+  /**
+   * Heading above the cards. Write it for this page. Do not restate the title, which is how pages ended up reading 'Explore prepare for your calling'.
+   */
+  heading: string;
+  heroPrimary: {
+    label: string;
+    /**
+     * A route in this site starts with / or #. A link to the current university website is a full https:// address and its label should say so.
+     */
+    href: string;
+    /**
+     * Analytics name for this link, for example admissions-hero-cost. Optional.
+     */
+    cta?: string | null;
   };
-  seo?: {
-    title?: string | null;
-    description?: string | null;
-    image?: (number | null) | Media;
+  heroSecondary: {
+    label: string;
+    /**
+     * A route in this site starts with / or #. A link to the current university website is a full https:// address and its label should say so.
+     */
+    href: string;
+    /**
+     * Analytics name for this link, for example admissions-hero-cost. Optional.
+     */
+    cta?: string | null;
+  };
+  /**
+   * The card grid. Drag to reorder.
+   */
+  sections?:
+    | {
+        title: string;
+        description: string;
+        /**
+         * Leave blank if this card has no internal destination.
+         */
+        internal?: {
+          label?: string | null;
+          /**
+           * A route in this site starts with / or #. A link to the current university website is a full https:// address and its label should say so.
+           */
+          href?: string | null;
+          /**
+           * Analytics name for this link, for example admissions-hero-cost. Optional.
+           */
+          cta?: string | null;
+        };
+        /**
+         * Leave blank if this card does not link out.
+         */
+        external?: {
+          label?: string | null;
+          /**
+           * A route in this site starts with / or #. A link to the current university website is a full https:// address and its label should say so.
+           */
+          href?: string | null;
+          /**
+           * Analytics name for this link, for example admissions-hero-cost. Optional.
+           */
+          cta?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  nextStep: {
+    title: string;
+    description: string;
+    primary: {
+      label: string;
+      /**
+       * A route in this site starts with / or #. A link to the current university website is a full https:// address and its label should say so.
+       */
+      href: string;
+      /**
+       * Analytics name for this link, for example admissions-hero-cost. Optional.
+       */
+      cta?: string | null;
+    };
+    external?: {
+      label?: string | null;
+      /**
+       * A route in this site starts with / or #. A link to the current university website is a full https:// address and its label should say so.
+       */
+      href?: string | null;
+      /**
+       * Analytics name for this link, for example admissions-hero-cost. Optional.
+       */
+      cta?: string | null;
+    };
+  };
+  seo: {
+    title: string;
+    description: string;
   };
   updatedAt: string;
   createdAt: string;
@@ -542,16 +628,71 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
-  title?: T;
   slug?: T;
-  summary?: T;
-  content?: T;
+  eyebrow?: T;
+  title?: T;
+  introduction?: T;
+  heading?: T;
+  heroPrimary?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        cta?: T;
+      };
+  heroSecondary?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        cta?: T;
+      };
+  sections?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        internal?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              cta?: T;
+            };
+        external?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              cta?: T;
+            };
+        id?: T;
+      };
+  nextStep?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        primary?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              cta?: T;
+            };
+        external?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              cta?: T;
+            };
+      };
   seo?:
     | T
     | {
         title?: T;
         description?: T;
-        image?: T;
       };
   updatedAt?: T;
   createdAt?: T;
