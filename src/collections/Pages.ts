@@ -6,6 +6,7 @@ import {
   publishedOrAuthenticated,
   publishers,
 } from "@/access/cms";
+import { revalidatePageAfterChange, revalidatePageAfterDelete } from "@/lib/content/revalidate";
 import { sitePageOption, sitePages } from "@/lib/content/site-pages";
 
 /**
@@ -92,6 +93,10 @@ export const Pages: CollectionConfig = {
     read: publishedOrAuthenticated,
     readVersions: editors,
     update: editorsForDraftsPublishersForPublishing,
+  },
+  hooks: {
+    afterChange: [revalidatePageAfterChange],
+    afterDelete: [revalidatePageAfterDelete],
   },
   versions: {
     drafts: { autosave: true, schedulePublish: true },
