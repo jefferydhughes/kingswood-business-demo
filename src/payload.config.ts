@@ -26,6 +26,12 @@ const deploymentURL = process.env.VERCEL_URL
   : canonicalURL;
 const allowedOrigins = [...new Set([canonicalURL, deploymentURL])];
 /**
+ * Absolute links Payload writes, such as the password reset email, must use
+ * the stable domain in production. A per-deployment URL sits behind Vercel
+ * deployment protection and is deleted by retention, so those links break.
+ */
+const serverURL = process.env.VERCEL_ENV === "production" ? canonicalURL : deploymentURL;
+/**
  * Relational schema changes are applied separately from committed migrations.
  * Runtime schema push is disabled in every environment so a
  * serverless request never attempts DDL work.
@@ -82,7 +88,7 @@ export default buildConfig({
     }),
   ],
   secret: process.env.PAYLOAD_SECRET ?? "",
-  serverURL: deploymentURL,
+  serverURL,
   sharp,
   typescript: {
     outputFile: path.resolve(dirname, "payload-types.ts"),
